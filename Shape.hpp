@@ -87,6 +87,52 @@ private:
 	double theta;
 };
 
+class TrapPrism : public Shape {
+
+public:
+	TrapPrism();
+	~TrapPrism();
+	TrapPrism(double x_, double y_, double z_, double a_, double b_, double h_, double off_, double depth_);
+	TrapPrism(double x_, double y_, double z_, double a_, double b_, double h_, double off_, double depth_, double rotation_);
+	
+	double getA();
+	double getB();
+	double getOffset();
+	double getH();
+	double getDepth();
+
+	void setA(double a_);
+	void setB(double b_);
+	void setOffset(double off_);
+	void setH (double h_);
+	void setDepth(double depth_);
+
+	void draw();
+
+private:
+	double a, b, h, off, depth;
+};
+
+class Cylinder : public Shape {
+
+public:
+	Cylinder();
+	~Cylinder();
+	Cylinder(double x_, double y_, double z_, double r_, double depth_);
+	Cylinder(double x_, double y_, double z_, double r_, double depth_, double rotation_);
+
+	double getR();
+	double getDepth();
+
+	void setR(double r_);
+	void setDepth(double depth_);
+
+	void draw();
+
+private:
+	double r, depth;
+};
+
 struct point { //defines vertices points
 	double x;
 	double y;

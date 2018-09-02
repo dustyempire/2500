@@ -293,3 +293,165 @@ void TriPrism::draw(){
 	glPopMatrix();
 }
 
+
+
+TrapPrism::~TrapPrism() {
+}
+
+double TrapPrism::getA()
+{
+	return a;
+}
+
+double TrapPrism::getB()
+{
+	return b;
+}
+
+double TrapPrism::getOffset()
+{
+	return off;
+}
+
+double TrapPrism::getH()
+{
+	return h;
+}
+
+double TrapPrism::getDepth()
+{
+	return depth;
+}
+
+void TrapPrism::setA(double a_)
+{
+	a = a_;
+}
+
+void TrapPrism::setB(double b_)
+{
+	b = b_;
+}
+
+void TrapPrism::setOffset(double off_)
+{
+	off = off_;
+}
+
+void TrapPrism::setH(double h_)
+{
+	h = h_;
+}
+
+void TrapPrism::setDepth(double depth_)
+{
+	depth = depth_;
+}
+
+TrapPrism::TrapPrism() : Shape() {
+	a = 0;
+	b = 0;
+	h = 0;
+	off = 0;
+}
+
+TrapPrism::TrapPrism(double x_, double y_, double z_, double a_, double b_, double h_, double off_, double depth_) : Shape(x_, y_, z_) {
+	a = a_;
+	b = b_;
+	h = h_;
+	off = off_;
+	depth = depth_;
+}
+
+TrapPrism::TrapPrism(double x_, double y_, double z_, double a_, double b_, double h_, double off_, double depth_, double rotation_) : Shape(x_, y_, z_, rotation_) {
+	a = a_;
+	b = b_;
+	h = h_;
+	off = off_;
+	depth = depth_;
+}
+
+void TrapPrism::draw() {
+	glPushMatrix();
+	positionInGL();
+	setColorInGL();
+
+	point one = { a / 2, 0, -depth / 2 };
+	point two = { a / 2 - off, h, -depth / 2 };
+	point three = { a / 2 - off - b, h, -depth / 2 };
+	point four = { -a / 2, 0, -depth / 2 };
+
+	point five = { a / 2, 0, depth / 2 };
+	point six = { a / 2 - off, h, depth / 2 };
+	point seven = { a / 2 - off - b, h, depth / 2 };
+	point eight = { -a / 2, 0, depth / 2 };
+
+	makeTri(&one, &two, &four); //front L
+	makeTri(&two, &three, &four); //front R
+	makeTri(&five, &six, &eight); //back L
+	makeTri(&six, &seven, &eight); //back R;
+
+	makeQuad(&one, &five, &eight, &four); //bottom
+	makeQuad(&two, &six, &seven, &three); //top
+	makeQuad(&one, &two, &six, &five); //left
+	makeQuad(&four, &three, &seven, &eight); //right
+
+	glPopMatrix();
+}
+
+Cylinder::Cylinder(): Shape() {
+	r = 0;
+	depth = 0;
+}
+
+Cylinder::~Cylinder() {
+}
+
+Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_): Shape(x_, y_, z_) {
+	r = r_;
+	depth = depth_;
+}
+
+Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_, double rotation_): Shape(x_, y_, z_, rotation_) {
+	r = r_;
+	depth = depth_;
+}
+
+double Cylinder::getR() {
+	return r;
+}
+
+double Cylinder::getDepth() {
+	return depth;
+}
+
+void Cylinder::setR(double r_) {
+	r = r_;
+}
+
+void Cylinder::setDepth(double depth_) {
+	depth = depth_;
+}
+
+void Cylinder::draw()
+{
+	glPushMatrix();
+	positionInGL();
+	setColorInGL();
+
+	glTranslated(0, r, -depth / 2); //moves so cylinder centre will be at origin
+	GLUquadric* sides;
+	sides = gluNewQuadric();
+	gluCylinder(sides, r, r, depth, 20, 1); //makes cylinder sides
+	
+	GLUquadric* endF; //makes front end at where cylinsed side start is
+	endF = gluNewQuadric();
+	gluDisk(endF, 0, r, 20, 1);
+
+	glTranslated(0, 0, depth); //moves making point to end of cylinder
+	GLUquadric* endB;
+	endB = gluNewQuadric();
+	gluDisk(endB, 0, r, 20, 1); //makes cylinder back end
+
+	glPopMatrix(); //resets to last matrix
+}

@@ -1,5 +1,20 @@
 
 #include "Vehicle.hpp"
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#elif defined(WIN32)
+#include <Windows.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
+#else
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
+#endif
+
 
 Vehicle::Vehicle() {
 	speed = steering = 0;
@@ -8,9 +23,9 @@ Vehicle::Vehicle() {
 Vehicle::~Vehicle()
 { 
 	// clean-up added shapes
-	for(int i = 0; i < shapes.size(); i++) {
-		delete shapes[i];
-	}
+	//for(int i = 0; i < shapes.size(); i++) {
+	//	delete shapes[i];
+	//}
 }
 
 void Vehicle::update(double dt)
@@ -62,4 +77,73 @@ double clamp(double a, double n, double b) {
 	return n;
 
 };
+
+TestVehicle::TestVehicle(): Vehicle() {
+
+	//links the private shapes to the vehicle shape vecotr
+	//maybe unnecessary?
+
+	addShape(&LBWheel);
+	addShape(&RBWheel);
+	addShape(&LFWheel);
+	addShape(&RFWheel);
+	addShape(&Body);
+	addShape(&Top);
+	addShape(&Spoiler);
+
+	 //sets colors, helps to tell if constructor is called
+	LBWheel.setColor(0.2, 0.2, 0.2);
+	RBWheel.setColor(0.2, 0.2, 0.2);
+	LFWheel.setColor(0.2, 0.2, 0.2);
+	RFWheel.setColor(0.2, 0.2, 0.2);
+	Body.setColor(0.7, 0.1, 0.2);
+	Top.setColor(0.4, 0.4, 0.4);
+	Spoiler.setColor(0.5, 0.1, 0.2);
+
+	size = 1;
+}
+
+TestVehicle::~TestVehicle() {
+}
+/*
+TestVehicle::TestVehicle(double size_): Vehicle(): {
+	TestVehicle();
+	size = size_;
+}
+*/
+void TestVehicle::draw() {
+
+	//for (int i = 0; i < shapes.size(); i++) {
+		//Shape *temp = shapes[i];
+		//temp->draw();
+	//}
+
+	//Shape *temp = shapes.at(2);
+	//reset matrix
+	glPushMatrix();
+	//move to vehicle position
+	positionInGL();\
+	//scale vehicle
+	glScaled(size, size, size);
+
+	//draw vehicle areas. could do a pointer actually
+
+	
+	for (int i = 0; i < shapes.size(); i++) {
+		shapes[i]->draw();
+	}
+	/*
+	LBWheel.draw();
+	RBWheel.draw();
+	RFWheel.draw();
+	LFWheel.draw();
+	Body.draw();
+	Top.draw();
+	Spoiler.draw();
+	*/
+
+	glPopMatrix();
+}
+
+
 

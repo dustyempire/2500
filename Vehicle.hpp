@@ -43,12 +43,28 @@ class TestVehicle : public Vehicle {
 public:
 	TestVehicle();
 	~TestVehicle();
+	TestVehicle(double size_) : TestVehicle() { size = size_; }
 
 	void draw();
 
 private:
 	//location of shapes in here? 
 	double size;
+
+	// shapes that make up the vehicle are permanently stored in the object
+	/* tried to make them in the constructor and linking it to shape vector 
+	but once the constructor closed the address of the shapes were reset.
+	not quite sure how else to implement this aside from making static objects in the constructor
+	or adding shapes in main.
+	also doing this breaks the destructor because you can't delete the shapes in here*/
+	Cylinder LBWheel = Cylinder(0.5, 0.5, -2, 0.5, 1);
+	Cylinder RBWheel = Cylinder(0.5, 0.5, 2, 0.5, 1);
+	TrapPrism Body = TrapPrism(2.75, 1, 0, 5.5, 3.5, 1, 1.5, 3);
+	RectPrism Top = RectPrism(2.5, 2, 0, 2, 0.5, 2);
+	TriPrism Spoiler = TriPrism(1, 2, 0, 1, 1.5, 15, 3);
+	Cylinder LFWheel = Cylinder(3.5, 0.5, -2, 0.5, 1);
+	Cylinder RFWheel = Cylinder(3.5, 0.5, 2, 0.5, 1);
+
 };
 
 #endif // for MTRN3500_VEHICLE_H

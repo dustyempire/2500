@@ -58,8 +58,16 @@ public:
 
 	void draw();
 
+	void setSteer(bool state);
+	void setSpin(bool state);
+
+	bool getSteer();
+	bool getSpin();
+
 private:
 	double xLength, yLength, zLength;
+	bool isSteer;
+	bool isSpin;
 };
 
 class TriPrism : public Shape {
@@ -129,8 +137,16 @@ public:
 
 	void draw();
 
+	void setSteer(bool state);
+	void setSpin(bool state);
+
+	bool getSteer();
+	bool getSpin();
+
 private:
 	double r, depth;
+	bool isSteer;
+	bool isSpin;
 };
 
 struct point { //defines vertices points

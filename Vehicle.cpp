@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 #include "Vehicle.hpp"
 #ifdef __APPLE__
@@ -16,7 +15,6 @@
 #include <GL/glut.h>
 #endif
 
-
 Vehicle::Vehicle() {
 	speed = steering = 0;
 };
@@ -24,9 +22,9 @@ Vehicle::Vehicle() {
 Vehicle::~Vehicle()
 { 
 	// clean-up added shapes
-	//for(int i = 0; i < shapes.size(); i++) {
-	//	delete shapes[i];
-	//}
+	for(int i = 0; i < shapes.size(); i++) {
+		delete shapes[i];
+	}
 }
 
 void Vehicle::update(double dt)
@@ -74,7 +72,7 @@ double clamp(double a, double n, double b) {
 		if (n < b) n = b;
 		if (n > a) n = a;
 	}
-
+	
 	return n;
 
 };
@@ -83,35 +81,40 @@ TestVehicle::TestVehicle(): Vehicle() {
 
 	//links the private shapes to the vehicle shape vecotr
 	//maybe unnecessary?
+	Cylinder *LBWheel = new Cylinder(0.5, 0.5, -2, 0.5, 1);
+	Cylinder *RBWheel = new Cylinder(0.5, 0.5, 2, 0.5, 1);
+	TrapPrism *Body = new TrapPrism(2.75, 1, 0, 5.5, 3.5, 1, 1.5, 3);
+	RectPrism *Top = new RectPrism(2.5, 2, 0, 2, 0.5, 2);
+	TriPrism *Spoiler = new TriPrism(1, 2, 0, 1, 1.5, 15, 3);
+	Cylinder *LFWheel = new Cylinder(3.5, 0.5, -2, 0.5, 1);
+	Cylinder *RFWheel = new Cylinder(3.5, 0.5, 2, 0.5, 1);
 
-	addShape(&LBWheel);
-	addShape(&RBWheel);
-	addShape(&LFWheel);
-	addShape(&RFWheel);
-	addShape(&Body);
-	addShape(&Top);
-	addShape(&Spoiler);
+	addShape(LBWheel);
+	addShape(RBWheel);
+	addShape(LFWheel);
+	addShape(RFWheel);
+	addShape(Body);
+	addShape(Top);
+	addShape(Spoiler);
 
 	 //sets colors, helps to tell if constructor is called
-	LBWheel.setColor(0.2, 0.2, 0.2);
-	RBWheel.setColor(0.2, 0.2, 0.2);
-	LFWheel.setColor(0.2, 0.2, 0.2);
-	RFWheel.setColor(0.2, 0.2, 0.2);
-	Body.setColor(0.7, 0.1, 0.2);
-	Top.setColor(0.4, 0.4, 0.4);
-	Spoiler.setColor(0.5, 0.1, 0.2);
+	LBWheel->setColor(0.2, 0.2, 0.2);
+	RBWheel->setColor(0.2, 0.2, 0.2);
+	LFWheel->setColor(0.2, 0.2, 0.2);
+	RFWheel->setColor(0.2, 0.2, 0.2);
+	Body->setColor(0.7, 0.1, 0.2);
+	Top->setColor(0.4, 0.4, 0.4);
+	Spoiler->setColor(0.5, 0.1, 0.2);
+
+	LFWheel->setSteer(TRUE);
+	RFWheel->setSteer(TRUE);
 
 	size = 1;
 }
 
 TestVehicle::~TestVehicle() {
 }
-/*
-TestVehicle::TestVehicle(double size_): Vehicle(): {
-	TestVehicle();
-	size = size_;
-}
-*/
+
 void TestVehicle::draw() {
 
 	//for (int i = 0; i < shapes.size(); i++) {
@@ -123,16 +126,27 @@ void TestVehicle::draw() {
 	//reset matrix
 	glPushMatrix();
 	//move to vehicle position
-	positionInGL();\
+	positionInGL();
 	//scale vehicle
 	glScaled(size, size, size);
-
+	//glRotated(45, 0, 1, 0);
+	//glTranslated(-2, 0, 0); // move centre
+	//glPushMatrix();
+	//glRotated(45, 0, 1, 0);
+	//glPopMatrix();
 	//draw vehicle areas. could do a pointer actually
 
 	
+
 	for (int i = 0; i < shapes.size(); i++) {
+		Cylinder *check = dynamic_cast <Cylinder*> (shapes[i]);
+		if (check != nullptr && check->getSteer() == TRUE) {
+			check->setRotation(getSteering());
+		}
 		shapes[i]->draw();
 	}
+
+	
 	/*
 	LBWheel.draw();
 	RBWheel.draw();
@@ -146,40 +160,104 @@ void TestVehicle::draw() {
 	glPopMatrix();
 }
 
-
-
-=======
-
-#include "Vehicle.hpp"
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#elif defined(WIN32)
-#include <Windows.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#endif
-
-
-Vehicle::Vehicle() {
-	speed = steering = 0;
-};
-
-Vehicle::~Vehicle()
-{ 
-	// clean-up added shapes
-	//for(int i = 0; i < shapes.size(); i++) {
-	//	delete shapes[i];
-	//}
+Gender::~Gender() {
 }
 
-void Vehicle::update(double dt)
+
+Gender::Gender() {
+	size = 1;
+	altitude = 0;
+
+	TrapPrism *Bottom = new TrapPrism(0.2, 0.2, 0, 2, 2.8, 0.2, -0.1, 0.5);
+	TrapPrism *Mid = new TrapPrism(-0.1, 0.4, 0, 2.4, 1.2, 0.3, 0.6, 0.4);
+	TrapPrism *Top = new TrapPrism(-0.1, 0.7, 0, 1, 0.45, 0.1, 0.05, 0.2);
+	TrapPrism *Tail = new TrapPrism(-1.5, 0.4, 0, 0.4, 1.3, 0.1, -0.3, 0.15);
+	TrapPrism *Fin = new TrapPrism(-2.05, 0.5, 0, 0.3, 0.25, 0.55, 0.45, 0.1);
+	RectPrism *BBlade1 = new RectPrism(-2.3, 0.55, -0.075, 0.07, 0.7, 0.02);
+		BBlade1->setSteer(TRUE);
+	RectPrism *BBlade2 = new RectPrism(-2.3, 0.865, -0.075, 0.7, 0.07, 0.02);
+		BBlade2->setSteer(TRUE);
+	RectPrism *Shaft = new RectPrism(0, 0.8, 0, 0.1, 0.1, 0.1);
+	RectPrism *TBlade1 = new RectPrism(0, 0.9, 0, 3.6, 0.03, 0.2);
+		TBlade1->setSpin(TRUE);
+	RectPrism *TBlade2 = new RectPrism(0, 0.9, 0, 0.2, 0.03, 3.6);
+		TBlade2->setSpin(TRUE);
+	RectPrism *Topper = new RectPrism(0, 0.93, 0, 0.05, 0.05, 0.05);
+	Cylinder *LFWheel = new Cylinder(0.3, 0, -0.2, 0.08, 0.1);
+	Cylinder *RFWheel = new Cylinder(0.3, 0, 0.2, 0.08, 0.1);
+	TrapPrism *LStrut = new TrapPrism(0.3, 0.05, -0.13, 0.04, 0.3, 0.15, -0.25, 0.04);
+	TrapPrism *RStrut = new TrapPrism(0.3, 0.05, 0.13, 0.04, 0.3, 0.15, -0.25, 0.04);
+	Cylinder *BackWheel1 = new Cylinder(-1.1, 0, -0.04, 0.06, 0.05);
+	Cylinder *BackWheel2 = new Cylinder(-1.1, 0, 0.04, 0.06, 0.05);
+	TrapPrism *BackStrut = new TrapPrism(-1.1, 0.08, 0, 0.1, 0.15, 0.2, -0.14, 0.03);
+	TriPrism *BackWing = new TriPrism(-2, 0.42, 0, 0.2, 0.1, 160, 0.4);
+	TrapPrism *Wings = new TrapPrism(0, 0.35, 0, 0.65, 0.2, 0.11, 0.1, 2);
+	RectPrism *hangL1 = new RectPrism(0, 0.3, -0.45, 0.3, 0.05, 0.05);
+	RectPrism *hangL2 = new RectPrism(0, 0.3, -0.7, 0.3, 0.05, 0.05);
+	TrapPrism *hangL3 = new TrapPrism(0.1, 0.2, -0.45, 0.5, 0.8, 0.1, 0, 0.12);
+	TrapPrism *hangL4 = new TrapPrism(0.1, 0.2, -0.7, 0.5, 0.8, 0.1, 0, 0.12);
+	RectPrism *hangR1 = new RectPrism(0, 0.3, 0.45, 0.3, 0.05, 0.05);
+	RectPrism *hangR2 = new RectPrism(0, 0.3, 0.7, 0.3, 0.05, 0.05);
+	TrapPrism *hangR3 = new TrapPrism(0.1, 0.2, 0.45, 0.5, 0.8, 0.1, 0, 0.12);
+	TrapPrism *hangR4 = new TrapPrism(0.1, 0.2, 0.7, 0.5, 0.8, 0.1, 0, 0.12);
+
+	addShape(Bottom);	//0
+	addShape(Mid);		//1
+	addShape(Top);		//2
+	addShape(Tail);		//3
+	addShape(Fin);		//4
+	addShape(BBlade1);	//5
+	addShape(BBlade2);	//6
+	addShape(Shaft);	//7
+	addShape(TBlade1);	//8
+	addShape(TBlade2);	//9
+	addShape(Topper);	//10
+	addShape(LFWheel);	//11
+	addShape(RFWheel);	//12
+	addShape(LStrut);	//13
+	addShape(RStrut);	//14
+	addShape(BackWheel1);//15
+	addShape(BackWheel2);//16
+	addShape(BackStrut);//17
+	addShape(BackWing);	//18
+	addShape(Wings);	//19
+	addShape(hangL1);	//20
+	addShape(hangL2);	//21
+	addShape(hangL3);	//22
+	addShape(hangL4);	//23
+	addShape(hangR1);	//24
+	addShape(hangR2);	//25
+	addShape(hangR3);	//26
+	addShape(hangR4);	//27
+
+	for (int i = 0; i < shapes.size(); i++) {
+		if (i >= 0 && i <= 4)
+			shapes[i]->setColor(0.6, 0.6, 0.6); //body
+		if (i == 1)
+			shapes[i]->setColor(0.2, 0.2, 0.2); //mid
+
+		if (i == 5 || i == 6 || i == 8 || i == 9)
+			shapes[i]->setColor(0.4, 0.4, 0.4); //blades
+												
+		if (i == 11 || i == 12 || i == 15 || i==16)
+			shapes[i]->setColor(0.05, 0.05, 0.05); //wheels
+
+		if (i == 7 || i == 10 || i == 13 || i == 14 || i == 17)
+			shapes[i]->setColor(0.1, 0.1, 0.1); //struts and supports
+
+		if (i == 18 || i == 19)
+			shapes[i]->setColor(0.8, 0.8, 0.8); //wings
+
+		if (i == 20 || i == 21 || i == 24 || i == 25)
+			shapes[i]->setColor(0.8, 0.8, 0.8); //holders
+
+		if (i == 22 || i == 23 || i == 26 || i == 27)
+			shapes[i]->setColor(0.2, 0.2, 0.2); //holders
+			
+	}
+}
+
+void Gender::update(double dt)
 {
 	speed = clamp(MAX_BACKWARD_SPEED_MPS, speed, MAX_FORWARD_SPEED_MPS);
 	steering = clamp(MAX_LEFT_STEERING_DEGS, steering, MAX_RIGHT_STEERING_DEGS);
@@ -189,113 +267,64 @@ void Vehicle::update(double dt)
 	z += speed * dt * sin(rotation * 3.1415926535 / 180.0);
 
 	// update heading
-	rotation += dt * steering * speed;
+	rotation += dt * steering * 20;
 
 	while (rotation > 360) rotation -= 360;
 	while (rotation < 0) rotation += 360;
 
 
-	if(fabs(speed) < .1)
+	if (fabs(speed) < .1)
 		speed = 0;
-	if(fabs(steering) < .1)
+	if (fabs(steering) < .1)
 		steering = 0;
 
+	counter++;
+	if (counter >= 90) {
+		counter = 0;
+	}
+		
 }
 
-void Vehicle::update(double speed_, double steering_, double dt) 
+void Gender::update(double speed_, double steering_, double dt)
 {
-	speed = speed + ((speed_) - speed)*dt*4;
+	speed = speed + ((speed_)-speed)*dt * 4;
 	steering = steering + (steering_ - steering)*dt * 6;
 
 	update(dt);
+
 }
 
-void Vehicle::addShape(Shape * shape) 
-{
-	shapes.push_back(shape);
-}
+void Gender::draw() {
 
-double clamp(double a, double n, double b) {
+	double rateSpeed = double(speed / MAX_FORWARD_SPEED_MPS);
+	double rateSteer = double(steering / MAX_LEFT_STEERING_DEGS);
 
-	if (a < b) {
-		if (n < a) n = a;
-		if (n > b) n = b;
-	} else {
-		if (n < b) n = b;
-		if (n > a) n = a;
-	}
-
-	return n;
-
-};
-
-TestVehicle::TestVehicle(): Vehicle() {
-
-	//links the private shapes to the vehicle shape vecotr
-	//maybe unnecessary?
-
-	addShape(&LBWheel);
-	addShape(&RBWheel);
-	addShape(&LFWheel);
-	addShape(&RFWheel);
-	addShape(&Body);
-	addShape(&Top);
-	addShape(&Spoiler);
-
-	 //sets colors, helps to tell if constructor is called
-	LBWheel.setColor(0.2, 0.2, 0.2);
-	RBWheel.setColor(0.2, 0.2, 0.2);
-	LFWheel.setColor(0.2, 0.2, 0.2);
-	RFWheel.setColor(0.2, 0.2, 0.2);
-	Body.setColor(0.7, 0.1, 0.2);
-	Top.setColor(0.4, 0.4, 0.4);
-	Spoiler.setColor(0.5, 0.1, 0.2);
-
-	size = 1;
-}
-
-TestVehicle::~TestVehicle() {
-}
-/*
-TestVehicle::TestVehicle(double size_): Vehicle(): {
-	TestVehicle();
-	size = size_;
-}
-*/
-void TestVehicle::draw() {
-
-	//for (int i = 0; i < shapes.size(); i++) {
-		//Shape *temp = shapes[i];
-		//temp->draw();
-	//}
-
-	//Shape *temp = shapes.at(2);
-	//reset matrix
 	glPushMatrix();
-	//move to vehicle position
-	positionInGL();\
-	//scale vehicle
+	positionInGL();
+	glTranslated(0, altitude, 0);
 	glScaled(size, size, size);
+	glRotated(-30 * rateSpeed, 0, 0, 1);
 
-	//draw vehicle areas. could do a pointer actually
 
-	
 	for (int i = 0; i < shapes.size(); i++) {
-		shapes[i]->draw();
+		RectPrism *check = dynamic_cast <RectPrism*> (shapes[i]);
+		if (check != nullptr && check->getSpin() == TRUE) {
+			check->setRotation(counter * (20 + 10 * abs(rateSpeed)) );
+			shapes[i]->draw();
+		}
+		else if (check != nullptr && check->getSteer() == TRUE) {
+			
+			//shapes[i]->positionInGL();
+			//glTranslated(-x, -y, -z);
+			shapes[i]->draw();
+			// can't seem to work out a z rotation without drewriting rectangle draw
+		}
+		else {
+			shapes[i]->draw();
+		}
+
+		
 	}
-	/*
-	LBWheel.draw();
-	RBWheel.draw();
-	RFWheel.draw();
-	LFWheel.draw();
-	Body.draw();
-	Top.draw();
-	Spoiler.draw();
-	*/
 
 	glPopMatrix();
 }
-
-
-
->>>>>>> 25209d78e463649de116709b156b6a4ad60004ec

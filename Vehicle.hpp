@@ -57,12 +57,21 @@ private:
 	not quite sure how else to implement this aside from making static objects in the constructor
 	or adding shapes in main.
 	also doing this breaks the destructor because you can't delete the shapes in here*/
+<<<<<<< HEAD
 	Cylinder LBWheel = Cylinder(0.5, 0.5, -2, 0.5, 1);
 	Cylinder RBWheel = Cylinder(0.5, 0.5, 2, 0.5, 1);
 	TrapPrism Body = TrapPrism(2.75, 1, 0, 5.5, 3.5, 1, 1.5, 3);
 	RectPrism Top = RectPrism(2.5, 2, 0, 2, 0.5, 2);
 	TriPrism Spoiler = TriPrism(1, 2, 0, 1, 1.5, 15, 3);
 	Cylinder LFWheel = Cylinder(3.5, 0.5, -2, 0.5, 1);
+=======
+	Cylinder LBWheel = Cylinder(0.5, 0.5, -2, 0.5, 1);
+	Cylinder RBWheel = Cylinder(0.5, 0.5, 2, 0.5, 1);
+	TrapPrism Body = TrapPrism(2.75, 1, 0, 5.5, 3.5, 1, 1.5, 3);
+	RectPrism Top = RectPrism(2.5, 2, 0, 2, 0.5, 2);
+	TriPrism Spoiler = TriPrism(1, 2, 0, 1, 1.5, 15, 3);
+	Cylinder LFWheel = Cylinder(3.5, 0.5, -2, 0.5, 1);
+>>>>>>> 25209d78e463649de116709b156b6a4ad60004ec
 	Cylinder RFWheel = Cylinder(3.5, 0.5, 2, 0.5, 1);
 
 };

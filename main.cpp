@@ -1,4 +1,4 @@
-///////////////// etsetste
+
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
@@ -75,9 +75,8 @@ int frameCounter = 0;
 //int _tmain(int argc, _TCHAR* argv[]) {
 int main(int argc, char ** argv) {
 
-	const int WINDOW_WIDTH = 800;
-	const int WINDOW_HEIGHT = 600;
-
+	const int WINDOW_WIDTH = 1280;
+	const int WINDOW_HEIGHT = 720;
 	glutInit(&argc, (char**)(argv));
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowPosition(0, 0);
@@ -107,8 +106,8 @@ int main(int argc, char ** argv) {
 	//   custom vehicle.
 	// -------------------------------------------------------------------------
 
-	//vehicle = new MyVehicle();
-
+	vehicle = new TestVehicle(1.5);
+	//vehicle = new Gender(3, 5);
 
 	// add test obstacles
 	ObstacleManager::get()->addObstacle(Obstacle(10,10, 1));
@@ -189,21 +188,54 @@ void TestDraw() {
 	//disk = gluNewQuadric();
 	//aagluDisk(disk, 0, 10, 15, 1);
 
-	//GLUquadric* cylinder;
-	//cylinder = gluNewQuadric();
-	//gluCylinder(cylinder, 10, 10, 4, 20, 1);
+
 
 	//Cylinder F(0, 0, 0, 2, 12, 45);
 	//F.setColor(0.1, 0.1, 0.6);
 	//F.draw();
 
+	/*
 	TestVehicle vroom;
 	vroom.draw();
+	*/
+	//TestVehicle vroom1(2);
+	//vroom1.setPosition(6, 0, 3);
+	//vroom1.setRotation(60);
+	//vroom1.draw();
+	/*
+	RectPrism one(20, 0, 20, 1, 1, 1);
+	one.setColor(1, 0, 0);
+	one.draw();
 
-	TestVehicle vroom1(2);
-	vroom1.setPosition(6, 0, 3);
-	vroom1.setRotation(60);
-	vroom1.draw();
+	TriPrism two(-20, 0, 20, 1, 1, 60, 1, 45);
+	two.setColor(0, 1, 0);
+	two.draw();
+
+	TrapPrism three(-20, 0, -20, 4, 2, 1, 1, 4);
+	three.setColor(0, 0, 1);
+	three.draw();
+
+	Cylinder four(20, 0, -20, 1, 3, 90);
+	four.setColor(1, 1, 1);
+	four.draw();
+	*/
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	//Gender AttackHelicopter(20, 10);
+	//AttackHelicopter.draw();
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	/*
+	RectPrism scale1(-10, 0, 20, 20, 20, 20);
+	scale1.setColor(0.2, 0, 0);
+	scale1.draw();
+	RectPrism scale2(10, 0, 20, 20, 20, 20);
+	scale2.setColor(0, 0.2, 0);
+	scale2.draw();
+	RectPrism scale3(30, 0, 20, 20, 20, 20);
+	scale3.setColor(0, 0, 0.2);
+	scale3.draw();
+	*/
 }
 
 void display() {
@@ -358,6 +390,7 @@ void idle() {
 
 					VehicleModel vm;
 					vm.remoteID = 0;
+
 
 					//
 					// student code goes here

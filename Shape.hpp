@@ -64,10 +64,13 @@ public:
 	bool getSteer();
 	bool getSpin();
 
+
 private:
 	double xLength, yLength, zLength;
+
 	bool isSteer;
 	bool isSpin;
+
 };
 
 class TriPrism : public Shape {
@@ -137,16 +140,32 @@ public:
 
 	void draw();
 
+
+	//determins whether the cylinder acts as a wheel or not
 	void setSteer(bool state);
 	void setSpin(bool state);
 
 	bool getSteer();
 	bool getSpin();
 
+	//sets the rotation amount of the wheels in degrees
+	double getSpinRotation();
+	void setSpinRotation(double spin_);
+
+	double originalRotation; //original orientation for vehicles with wheels that aren't face on?
+
+	void setRims(bool state);
+	bool getRims();
+
 private:
 	double r, depth;
+	
+	double spinRotation;
+
 	bool isSteer;
 	bool isSpin;
+
+	bool rims;
 };
 
 struct point { //defines vertices points

@@ -15,6 +15,8 @@
 #include <GL/glut.h>
 #endif
 
+#include <math.h>
+
 Vehicle::Vehicle() {
 	speed = steering = 0;
 };
@@ -81,13 +83,13 @@ TestVehicle::TestVehicle(): Vehicle() {
 
 	//links the private shapes to the vehicle shape vecotr
 	//maybe unnecessary?
-	Cylinder *LBWheel = new Cylinder(0.5, 0.5, -2, 0.5, 1);
-	Cylinder *RBWheel = new Cylinder(0.5, 0.5, 2, 0.5, 1);
-	TrapPrism *Body = new TrapPrism(2.75, 1, 0, 5.5, 3.5, 1, 1.5, 3);
-	RectPrism *Top = new RectPrism(2.5, 2, 0, 2, 0.5, 2);
-	TriPrism *Spoiler = new TriPrism(1, 2, 0, 1, 1.5, 15, 3);
-	Cylinder *LFWheel = new Cylinder(3.5, 0.5, -2, 0.5, 1);
-	Cylinder *RFWheel = new Cylinder(3.5, 0.5, 2, 0.5, 1);
+	Cylinder *LBWheel = new Cylinder(-1.5, 0.5, -2, 0.5, 1);
+	Cylinder *RBWheel = new Cylinder(-1.5, 0.5, 2, 0.5, 1);
+	TrapPrism *Body = new TrapPrism(0.75, 1, 0, 5.5, 3.5, 1, 1.5, 3);
+	RectPrism *Top = new RectPrism(0.5, 2, 0, 2, 0.5, 2);
+	TriPrism *Spoiler = new TriPrism(-1, 2, 0, 1, 1.5, 15, 3);
+	Cylinder *LFWheel = new Cylinder(1.5, 0.5, -2, 0.5, 1);
+	Cylinder *RFWheel = new Cylinder(1.5, 0.5, 2, 0.5, 1);
 
 	addShape(LBWheel);
 	addShape(RBWheel);
@@ -109,6 +111,12 @@ TestVehicle::TestVehicle(): Vehicle() {
 	LFWheel->setSteer(TRUE);
 	RFWheel->setSteer(TRUE);
 
+	LFWheel->setSpin(TRUE);
+	RFWheel->setSpin(TRUE);
+	LBWheel->setSpin(TRUE);
+	RBWheel->setSpin(TRUE);
+
+
 	size = 1;
 }
 
@@ -117,52 +125,45 @@ TestVehicle::~TestVehicle() {
 
 void TestVehicle::draw() {
 
-	//for (int i = 0; i < shapes.size(); i++) {
-		//Shape *temp = shapes[i];
-		//temp->draw();
-	//}
-
-	//Shape *temp = shapes.at(2);
 	//reset matrix
 	glPushMatrix();
 	//move to vehicle position
 	positionInGL();
 	//scale vehicle
 	glScaled(size, size, size);
-	//glRotated(45, 0, 1, 0);
-	//glTranslated(-2, 0, 0); // move centre
-	//glPushMatrix();
-	//glRotated(45, 0, 1, 0);
-	//glPopMatrix();
-	//draw vehicle areas. could do a pointer actually
 
-	
-
+	//draw each shape and iterate through list
 	for (int i = 0; i < shapes.size(); i++) {
 		Cylinder *check = dynamic_cast <Cylinder*> (shapes[i]);
-		if (check != nullptr && check->getSteer() == TRUE) {
-			check->setRotation(getSteering());
+
+		if (check != nullptr && check->getSpin() == TRUE) {
+			if (check->getSpinRotation() > 360) {
+				check->setSpinRotation(check->getSpinRotation() - 360);
+			}
+			if (check->getSpinRotation() < -360) {
+				check->setSpinRotation(check->getSpinRotation() + 360);
+			}
+
+			check->setSpinRotation(check->getSpinRotation() + 2*speed); //changes spin orientation
 		}
+
+
+		if (check != nullptr && check->getSteer() == TRUE) {
+			check->setRotation(check->originalRotation + getSteering()); //changes rotation of the cylinder
+		}
+
+
 		shapes[i]->draw();
 	}
 
-	
-	/*
-	LBWheel.draw();
-	RBWheel.draw();
-	RFWheel.draw();
-	LFWheel.draw();
-	Body.draw();
-	Top.draw();
-	Spoiler.draw();
-	*/
 
 	glPopMatrix();
 }
 
+
+
 Gender::~Gender() {
 }
-
 
 Gender::Gender() {
 	size = 1;
@@ -173,15 +174,15 @@ Gender::Gender() {
 	TrapPrism *Top = new TrapPrism(-0.1, 0.7, 0, 1, 0.45, 0.1, 0.05, 0.2);
 	TrapPrism *Tail = new TrapPrism(-1.5, 0.4, 0, 0.4, 1.3, 0.1, -0.3, 0.15);
 	TrapPrism *Fin = new TrapPrism(-2.05, 0.5, 0, 0.3, 0.25, 0.55, 0.45, 0.1);
-	RectPrism *BBlade1 = new RectPrism(-2.3, 0.55, -0.075, 0.07, 0.7, 0.02);
-		BBlade1->setSteer(TRUE);
-	RectPrism *BBlade2 = new RectPrism(-2.3, 0.865, -0.075, 0.7, 0.07, 0.02);
-		BBlade2->setSteer(TRUE);
+	//RectPrism *BBlade1 = new RectPrism(-2.3, 0.55, -0.075, 0.07, 0.7, 0.02);
+		//BBlade1->setSpin(TRUE);
+	Cylinder *BBlade2 = new Cylinder(-2.3, 0.6, -0.075, 0.3, 0.02);
+		BBlade2->setSpin(TRUE);
 	RectPrism *Shaft = new RectPrism(0, 0.8, 0, 0.1, 0.1, 0.1);
 	RectPrism *TBlade1 = new RectPrism(0, 0.9, 0, 3.6, 0.03, 0.2);
-		TBlade1->setSpin(TRUE);
+		TBlade1->setSteer(TRUE);
 	RectPrism *TBlade2 = new RectPrism(0, 0.9, 0, 0.2, 0.03, 3.6);
-		TBlade2->setSpin(TRUE);
+		TBlade2->setSteer(TRUE);
 	RectPrism *Topper = new RectPrism(0, 0.93, 0, 0.05, 0.05, 0.05);
 	Cylinder *LFWheel = new Cylinder(0.3, 0, -0.2, 0.08, 0.1);
 	Cylinder *RFWheel = new Cylinder(0.3, 0, 0.2, 0.08, 0.1);
@@ -190,7 +191,7 @@ Gender::Gender() {
 	Cylinder *BackWheel1 = new Cylinder(-1.1, 0, -0.04, 0.06, 0.05);
 	Cylinder *BackWheel2 = new Cylinder(-1.1, 0, 0.04, 0.06, 0.05);
 	TrapPrism *BackStrut = new TrapPrism(-1.1, 0.08, 0, 0.1, 0.15, 0.2, -0.14, 0.03);
-	TriPrism *BackWing = new TriPrism(-2, 0.42, 0, 0.2, 0.1, 160, 0.4);
+	TriPrism *BackWing = new TriPrism(-2, 0.42, 0, 0.2, 0.1, 160, 0.6);
 	TrapPrism *Wings = new TrapPrism(0, 0.35, 0, 0.65, 0.2, 0.11, 0.1, 2);
 	RectPrism *hangL1 = new RectPrism(0, 0.3, -0.45, 0.3, 0.05, 0.05);
 	RectPrism *hangL2 = new RectPrism(0, 0.3, -0.7, 0.3, 0.05, 0.05);
@@ -206,7 +207,7 @@ Gender::Gender() {
 	addShape(Top);		//2
 	addShape(Tail);		//3
 	addShape(Fin);		//4
-	addShape(BBlade1);	//5
+	//addShape(BBlade1);	
 	addShape(BBlade2);	//6
 	addShape(Shaft);	//7
 	addShape(TBlade1);	//8
@@ -236,22 +237,22 @@ Gender::Gender() {
 		if (i == 1)
 			shapes[i]->setColor(0.2, 0.2, 0.2); //mid
 
-		if (i == 5 || i == 6 || i == 8 || i == 9)
+		if (i == 5 || i == 7 || i == 8)
 			shapes[i]->setColor(0.4, 0.4, 0.4); //blades
 												
-		if (i == 11 || i == 12 || i == 15 || i==16)
+		if (i == 10 || i == 11 || i == 14 || i==15)
 			shapes[i]->setColor(0.05, 0.05, 0.05); //wheels
 
-		if (i == 7 || i == 10 || i == 13 || i == 14 || i == 17)
+		if (i == 6 || i == 9 || i == 12 || i == 13 || i == 16)
 			shapes[i]->setColor(0.1, 0.1, 0.1); //struts and supports
 
-		if (i == 18 || i == 19)
+		if (i == 18 || i == 17)
 			shapes[i]->setColor(0.8, 0.8, 0.8); //wings
 
-		if (i == 20 || i == 21 || i == 24 || i == 25)
+		if (i == 20 || i == 19 || i == 24 || i == 23)
 			shapes[i]->setColor(0.8, 0.8, 0.8); //holders
 
-		if (i == 22 || i == 23 || i == 26 || i == 27)
+		if (i == 22 || i == 21 || i == 26 || i == 25)
 			shapes[i]->setColor(0.2, 0.2, 0.2); //holders
 			
 	}
@@ -266,8 +267,6 @@ void Gender::update(double dt)
 	x += speed * dt * cos(rotation * 3.1415926535 / 180.0);
 	z += speed * dt * sin(rotation * 3.1415926535 / 180.0);
 
-	// update heading
-	rotation += dt * steering * 20;
 
 	while (rotation > 360) rotation -= 360;
 	while (rotation < 0) rotation += 360;
@@ -278,11 +277,8 @@ void Gender::update(double dt)
 	if (fabs(steering) < .1)
 		steering = 0;
 
-	counter++;
-	if (counter >= 90) {
-		counter = 0;
-	}
-		
+	// update heading
+	rotation += dt * steering * 20;
 }
 
 void Gender::update(double speed_, double steering_, double dt)
@@ -304,24 +300,35 @@ void Gender::draw() {
 	glTranslated(0, altitude, 0);
 	glScaled(size, size, size);
 	glRotated(-30 * rateSpeed, 0, 0, 1);
+	glRotated(rateSteer * rateSpeed * 15, 1, 0, 0);
 
 
 	for (int i = 0; i < shapes.size(); i++) {
 		RectPrism *check = dynamic_cast <RectPrism*> (shapes[i]);
-		if (check != nullptr && check->getSpin() == TRUE) {
-			check->setRotation(counter * (20 + 10 * abs(rateSpeed)) );
-			shapes[i]->draw();
+
+		if (check != nullptr && check->getSteer() == TRUE) {
+			if (check->getRotation() > 360) {
+				check->setRotation(check->getRotation() - 360);
+			}
+
+			check->setRotation(check->getRotation() + 10 * (1 + 2 * abs(rateSpeed)));
 		}
-		else if (check != nullptr && check->getSteer() == TRUE) {
+
+		Cylinder *check2 = dynamic_cast <Cylinder*> (shapes[i]);
+		if (check2 != nullptr && check2->getSpin() == TRUE) {
 			
-			//shapes[i]->positionInGL();
-			//glTranslated(-x, -y, -z);
-			shapes[i]->draw();
-			// can't seem to work out a z rotation without drewriting rectangle draw
+			if (check2->getSpinRotation() > 360) {
+				check2->setSpinRotation(check2->getSpinRotation() - 360);
+			}
+			if (check2->getSpinRotation() < -360) {
+				check2->setSpinRotation(check2->getSpinRotation() + 360);
+			}
+
+			check2->setSpinRotation(check2->getSpinRotation() + 10 * (1+ rateSteer));
+
 		}
-		else {
-			shapes[i]->draw();
-		}
+		
+		shapes[i]->draw();
 
 		
 	}

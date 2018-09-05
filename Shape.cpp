@@ -161,24 +161,18 @@ RectPrism::RectPrism() : Shape() {
 	xLength = 0.0;
 	yLength = 0.0;
 	zLength = 0.0;
-	isSpin = FALSE;
-	isSteer = FALSE;
 }
 
 RectPrism::RectPrism(double x_, double y_, double z_, double x_length, double y_length, double z_length): Shape(x_, y_, z_) {
 	xLength = x_length;
 	yLength = y_length;
 	zLength = z_length;
-	isSpin = FALSE;
-	isSteer = FALSE;
 }
 
 RectPrism::RectPrism(double x_, double y_, double z_, double x_length, double y_length, double z_length, double rotation_) : Shape(x_, y_, z_, rotation_) {
 	xLength = x_length;
 	yLength = y_length;
 	zLength = z_length;
-	isSpin = FALSE;
-	isSteer = FALSE;
 }
 
 void RectPrism::draw() {
@@ -207,7 +201,6 @@ void RectPrism::draw() {
 
 	glPopMatrix();
 
-	
 }
 
 void RectPrism::setSteer(bool state) {
@@ -227,7 +220,6 @@ bool RectPrism::getSpin()
 {
 	return isSpin;
 }
-
 
 
 //triangular prism
@@ -318,6 +310,7 @@ void TriPrism::draw(){
 	glPopMatrix();
 }
 
+//Trap Prism
 TrapPrism::~TrapPrism() {
 }
 
@@ -428,6 +421,9 @@ Cylinder::Cylinder(): Shape() {
 	depth = 0;
 	isSteer = FALSE;
 	isSpin = FALSE;
+	spinRotation = 0;
+	originalRotation = getRotation();
+	rims = FALSE;
 }
 
 Cylinder::~Cylinder() {
@@ -438,6 +434,9 @@ Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_): S
 	depth = depth_;
 	isSteer = FALSE;
 	isSpin = FALSE;
+	spinRotation = 0;
+	originalRotation = getRotation();
+	rims = FALSE;
 }
 
 Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_, double rotation_): Shape(x_, y_, z_, rotation_) {
@@ -445,6 +444,9 @@ Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_, do
 	depth = depth_;
 	isSteer = FALSE;
 	isSpin = FALSE;
+	spinRotation = 0;
+	originalRotation = getRotation();
+	rims = FALSE;
 }
 
 double Cylinder::getR() {
@@ -467,22 +469,75 @@ void Cylinder::draw()
 {
 	
 	glPushMatrix();
-	positionInGL();
+	positionInGL(); //for general location and rotation
+	//takes into account steering changes
 	setColorInGL();
 
 	glTranslated(0, r, -depth / 2); //moves so cylinder centre will be at origin
+
+	glRotated(-spinRotation, 0, 0, 1); //rotates for spinning effect
+
 	GLUquadric* sides;
 	sides = gluNewQuadric();
 	gluCylinder(sides, r, r, depth, 20, 1); //makes cylinder sides
-	
-	GLUquadric* endF; //makes front end at where cylinsed side start is
-	endF = gluNewQuadric();
-	gluDisk(endF, 0, r, 20, 1);
 
-	glTranslated(0, 0, depth); //moves making point to end of cylinder
-	GLUquadric* endB;
-	endB = gluNewQuadric();
-	gluDisk(endB, 0, r, 20, 1); //makes cylinder back end
+
+	//makes alternating colored sections if the cylinders spin with vehicle, 
+	//otherwise just makes disk faces
+	if (rims == TRUE) {
+		int split = 6; //number of different partial disks made
+		double angle = 360 / split;
+		bool bright = TRUE; //alternates colours
+		for (int k = 0; k < split; k++) {
+
+			if (bright == TRUE) {
+				glColor3d(1, 0, 1); //color 1
+			}
+			else {
+				glColor3d(0.2, 0.2, 0.2); //color 2
+			}
+
+			GLUquadric* rim;
+			rim = gluNewQuadric();
+			gluPartialDisk(rim, 0, r, 20, 1, k * angle, angle);
+			bright = !bright;
+		}
+		setColorInGL();
+	}
+	else {
+		GLUquadric* endF; //makes plain disk
+		endF = gluNewQuadric();
+		gluDisk(endF, 0, r, 10, 1);
+	}
+
+	glTranslated(0, 0, depth); //moves making point to other side of cylinder
+
+	if (rims == TRUE) {
+		int split = 6;
+		double angle = 360 / split;
+		bool bright = TRUE;
+		for (int k = 0; k < split; k++) {
+
+			if (bright == TRUE) {
+				glColor3d(1, 0, 1);
+			}
+			else {
+				glColor3d(0.2, 0.2, 0.2);
+			}
+
+			GLUquadric* rim;
+			rim = gluNewQuadric();
+			gluPartialDisk(rim, 0, r, 20, 1, k * angle, angle);
+			bright = !bright;
+		}
+		setColorInGL();
+	}
+	else {
+		GLUquadric* endF; //makes plain disk
+		endF = gluNewQuadric();
+		gluDisk(endF, 0, r, 10, 1);
+	}
+
 
 	glPopMatrix(); //resets to last matrix
 }
@@ -493,6 +548,9 @@ void Cylinder::setSteer(bool state) {
 
 void Cylinder::setSpin(bool state) {
 	isSpin = state;
+	if (isSpin == TRUE) {
+		rims = TRUE;
+	}
 }
 
 bool Cylinder::getSteer()
@@ -504,4 +562,22 @@ bool Cylinder::getSpin()
 {
 	return isSpin;
 }
+
+double Cylinder::getSpinRotation() {
+	return spinRotation;
+}
+
+void Cylinder::setSpinRotation(double spin_) {
+	spinRotation = spin_;
+}
+
+void Cylinder::setRims(bool state) {
+	rims = state;
+}
+
+bool Cylinder::getRims()
+{
+	return rims;
+}
+
 

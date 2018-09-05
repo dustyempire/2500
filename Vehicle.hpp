@@ -47,6 +47,7 @@ public:
 
 	void draw();
 
+	//void fillProperties(VehicleModel vm); 
 
 private:
 	double size;
@@ -67,6 +68,19 @@ public:
 
 private:
 	double size, altitude;
+
+};
+
+class Imported : public Vehicle {
+	
+public:
+	Imported();
+	~Imported();
+
+	void draw();
+
+private:
+
 
 };
 #endif // for MTRN3500_VEHICLE_H

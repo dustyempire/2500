@@ -182,20 +182,20 @@ void RectPrism::draw() {
 	setColorInGL();
 	//positionInGL();
 
-	point one = { xLength / 2, 0, -zLength / 2 };
-	point two = { xLength / 2, yLength, -zLength / 2 };
-	point three = { -xLength / 2, yLength, -zLength / 2 };
-	point four = { -xLength / 2, 0, -zLength / 2 };
+	point one = { -xLength / 2, 0, -zLength / 2 };
+	point two = { -xLength / 2, yLength, -zLength / 2 };
+	point three = { xLength / 2, yLength, -zLength / 2 };
+	point four = { xLength / 2, 0, -zLength / 2 };
 
-	point five = { xLength / 2, 0, zLength / 2 };
-	point six = { xLength / 2, yLength, zLength / 2 };
-	point seven = { -xLength / 2, yLength, zLength / 2 };
-	point eight = { -xLength / 2, 0, zLength / 2 };
+	point five = { -xLength / 2, 0, zLength / 2 };
+	point six = { -xLength / 2, yLength, zLength / 2 };
+	point seven = { xLength / 2, yLength, zLength / 2 };
+	point eight = { xLength / 2, 0, zLength / 2 };
 
 	makeQuad(&one, &two, &three, &four); //front
 	makeQuad(&five, &six, &seven, &eight); //back
 	makeQuad(&one, &five, &eight, &four); //bottom
-	makeQuad(&two, &six, &four, &three); //top
+	makeQuad(&two, &six, &seven, &three); //top
 	makeQuad(&two, &six, &five, &one); //Lside
 	makeQuad(&three, &seven, &eight, &four); //Rside
 
@@ -294,12 +294,12 @@ void TriPrism::draw(){
 	setColorInGL();
 
 	//points below take poisitve x to the left
-	point one = { a / 2, 0, -depth / 2 };
-	point two = { (a / 2) - b*(cos(theta)), b*(sin(theta)), -depth / 2 };
-	point three = { -a / 2, 0, -depth / 2 };
-	point four = { a / 2, 0, depth / 2 };
-	point five = { (a / 2) - b*cos(theta), b*sin(theta), depth / 2 };
-	point six = { -a / 2, 0, depth / 2 };
+	point one = { -a / 2, 0, -depth / 2 };
+	point two = { -(a / 2) + b*(cos(theta)), b*(sin(theta)), -depth / 2 };
+	point three = { a / 2, 0, -depth / 2 };
+	point four = { -a / 2, 0, depth / 2 };
+	point five = { -(a / 2) + b*cos(theta), b*sin(theta), depth / 2 };
+	point six = { a / 2, 0, depth / 2 };
 
 	makeTri(&one, &two, &three); //front
 	makeTri(&four, &five, &six); //back
@@ -392,15 +392,15 @@ void TrapPrism::draw() {
 	positionInGL();
 	setColorInGL();
 
-	point one = { a / 2, 0, -depth / 2 };
-	point two = { a / 2 - off, h, -depth / 2 };
-	point three = { a / 2 - off - b, h, -depth / 2 };
-	point four = { -a / 2, 0, -depth / 2 };
+	point one = { -a / 2, 0, -depth / 2 };
+	point two = { -a / 2 + off, h, -depth / 2 };
+	point three = { -a / 2 + off + b, h, -depth / 2 };
+	point four = { a / 2, 0, -depth / 2 };
 
-	point five = { a / 2, 0, depth / 2 };
-	point six = { a / 2 - off, h, depth / 2 };
-	point seven = { a / 2 - off - b, h, depth / 2 };
-	point eight = { -a / 2, 0, depth / 2 };
+	point five = { -a / 2, 0, depth / 2 };
+	point six = { -a / 2 + off, h, depth / 2 };
+	point seven = { -a / 2 + off + b, h, depth / 2 };
+	point eight = { a / 2, 0, depth / 2 };
 
 	makeTri(&one, &two, &four); //front L
 	makeTri(&two, &three, &four); //front R
@@ -505,6 +505,7 @@ void Cylinder::draw()
 		setColorInGL();
 	}
 	else {
+		setColorInGL();
 		GLUquadric* endF; //makes plain disk
 		endF = gluNewQuadric();
 		gluDisk(endF, 0, r, 10, 1);

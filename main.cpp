@@ -106,8 +106,8 @@ int main(int argc, char ** argv) {
 	//   custom vehicle.
 	// -------------------------------------------------------------------------
 
-	vehicle = new TestVehicle(1.5);
-	//vehicle = new Gender(3, 5);
+	//vehicle = new TestVehicle(1.5);
+	vehicle = new Gender(1, 5);
 
 	// add test obstacles
 	ObstacleManager::get()->addObstacle(Obstacle(10,10, 1));
@@ -382,7 +382,7 @@ void idle() {
 				otherVehicles.clear();
 
 				// uncomment this line to connect to the robotics server.
-				//RemoteDataManager::Connect("www.robotics.unsw.edu.au","18081");
+				RemoteDataManager::Connect("www.robotics.unsw.edu.au","18081");
 
 				// on connect, let's tell the server what we look like
 				if (RemoteDataManager::IsConnected()) {
@@ -391,7 +391,10 @@ void idle() {
 					VehicleModel vm;
 					vm.remoteID = 0;
 
-
+					TestVehicle *cast = dynamic_cast<TestVehicle *> (vehicle);
+					if (cast != nullptr) {
+						//cast->fillProperties(vm);
+					}
 					//
 					// student code goes here
 					//
@@ -435,6 +438,60 @@ void idle() {
 								//
 								// more student code goes here
 								//
+								otherVehicles[vm.remoteID] = new Imported();
+								Vehicle *other = otherVehicles[vm.remoteID]; //pointer at our end
+
+								//cycling through all created 'import' calss vehicles
+								for (int k = 0; k < vm.shapes.size(); k++) {
+
+									//for each vm, we check the shape list inside
+									//based on the type, we make new shapes andd add those shapes to the 
+									//list in *other 
+
+									if ((vm.shapes[k]).type == RECTANGULAR_PRISM) { //if rect
+										ShapeParameter *params = &vm.shapes[k].params; //pointer for neatness and readability
+										//copy properties over by constructing (position is 0, 0, 0, for now)
+										Shape *copy = new RectPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->rect.xlen, params->rect.ylen, params->rect.zlen, vm.shapes[k].rotation);
+										//add the newly created shape to the shape list of the vehicle 'other' is pointing to
+										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+										other->addShape(copy);
+									}
+
+									if ((vm.shapes[k]).type == TRIANGULAR_PRISM) {
+										ShapeParameter *params = &vm.shapes[k].params;
+										Shape *copy = new TriPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->tri.alen, params->tri.blen, params->tri.angle, params->tri.depth, vm.shapes[k].rotation);
+										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+										other->addShape(copy);
+									}
+
+									if ((vm.shapes[k]).type == TRAPEZOIDAL_PRISM) {
+										ShapeParameter *params = &vm.shapes[k].params;
+										Shape *copy = new TrapPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->trap.alen, params->trap.blen, params->trap.height, params->trap.aoff, params->trap.depth, vm.shapes[k].rotation);
+										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+										other->addShape(copy);
+									}
+
+									if ((vm.shapes[k]).type == CYLINDER) {
+										ShapeParameter *params = &vm.shapes[k].params;
+										Shape *copy = new Cylinder(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->cyl.radius, params->cyl.depth, vm.shapes[k].rotation);
+										//set up a dynamic cast which should succeed.
+										Cylinder *dynamic = dynamic_cast<Cylinder *> (copy); 
+										//set steering and rolling properties
+										dynamic->setSpin(params->cyl.isRolling);
+										dynamic->setSteer(params->cyl.isSteering);
+										dynamic->originalRotation = vm.shapes[k].rotation; 
+										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+										//copy over
+										other->addShape(copy);
+									}
+									
+									//setting the position, colour and rotation of each shape
+									//other->setPosition(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2]);
+									//other->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+									//other->setRotation(vm.shapes[k].rotation);
+
+								}
+								
 							}
 							break;
 						}

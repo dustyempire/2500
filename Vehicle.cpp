@@ -1,5 +1,6 @@
 
 #include "Vehicle.hpp"
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -16,6 +17,7 @@
 #endif
 
 #include <math.h>
+struct VehicleModel;
 
 Vehicle::Vehicle() {
 	speed = steering = 0;
@@ -85,9 +87,9 @@ TestVehicle::TestVehicle(): Vehicle() {
 	//maybe unnecessary?
 	Cylinder *LBWheel = new Cylinder(-1.5, 0.5, -2, 0.5, 1);
 	Cylinder *RBWheel = new Cylinder(-1.5, 0.5, 2, 0.5, 1);
-	TrapPrism *Body = new TrapPrism(0.75, 1, 0, 5.5, 3.5, 1, 1.5, 3);
+	TrapPrism *Body = new TrapPrism(0.75, 1, 0, 5.5, 3.5, 1, 0.5, 3);
 	RectPrism *Top = new RectPrism(0.5, 2, 0, 2, 0.5, 2);
-	TriPrism *Spoiler = new TriPrism(-1, 2, 0, 1, 1.5, 15, 3);
+	TriPrism *Spoiler = new TriPrism(-1, 2, 0, 1, 0.5, 160, 3);
 	Cylinder *LFWheel = new Cylinder(1.5, 0.5, -2, 0.5, 1);
 	Cylinder *RFWheel = new Cylinder(1.5, 0.5, 2, 0.5, 1);
 
@@ -159,48 +161,96 @@ void TestVehicle::draw() {
 
 	glPopMatrix();
 }
+/*
+void TestVehicle::fillProperties(VehicleModel vm) {
+	for (int x = 0; x < shapes.size(); x++) {
 
+		Shape * cast = shapes[x];
+		vm.shapes[x].xyz[0] = cast->getX();
+		vm.shapes[x].xyz[1] = cast->getY();
+		vm.shapes[x].xyz[2] = cast->getZ();
+		vm.shapes[x].rgb[0] = cast->getRed();
+		vm.shapes[x].rgb[1] = cast->getBlue();
+		vm.shapes[x].rgb[2] = cast->getGreen();
+		vm.shapes[x].rotation = cast->getRotation();
 
+		RectPrism *cast1 = dynamic_cast<RectPrism *> (shapes[x]);
+		if (cast1 != nullptr) {
+			vm.shapes[x].type = RECTANGULAR_PRISM;
+			vm.shapes[x].params.rect.xlen = cast1->getXLength();
+			vm.shapes[x].params.rect.ylen = cast1->getYLength();
+			vm.shapes[x].params.rect.zlen = cast1->getZLength();
+		}
 
+		TriPrism *cast2 = dynamic_cast<TriPrism *> (shapes[x]);
+		if (cast2 != nullptr) {
+			vm.shapes[x].type = TRIANGULAR_PRISM;
+			vm.shapes[x].params.tri.alen = cast2->getA();
+			vm.shapes[x].params.tri.blen = cast2->getB();
+			vm.shapes[x].params.tri.angle = cast2->getTheta();
+			vm.shapes[x].params.tri.depth = cast2->getDepth();
+		}
+
+		TrapPrism *cast3 = dynamic_cast<TrapPrism *> (shapes[x]);
+		if (cast3 != nullptr) {
+			vm.shapes[x].type = TRAPEZOIDAL_PRISM;
+			vm.shapes[x].params.trap.alen = cast3->getA();
+			vm.shapes[x].params.trap.blen = cast3->getB();
+			vm.shapes[x].params.trap.height = cast3->getH();
+			vm.shapes[x].params.trap.aoff = cast3->getOffset();
+			vm.shapes[x].params.trap.depth = cast3->getDepth();
+		}
+
+		Cylinder *cast4 = dynamic_cast<Cylinder *> (shapes[x]);
+		if (cast4 != nullptr) {
+			vm.shapes[x].type = CYLINDER;
+			vm.shapes[x].params.cyl.depth = cast4->getDepth();
+			vm.shapes[x].params.cyl.radius = cast4->getR();
+			vm.shapes[x].params.cyl.isRolling = cast4->getSpin();
+			vm.shapes[x].params.cyl.isSteering = cast4->getSteer();
+		}
+	}
+}
+*/
 Gender::~Gender() {
 }
 
 Gender::Gender() {
 	size = 1;
 	altitude = 0;
-
-	TrapPrism *Bottom = new TrapPrism(0.2, 0.2, 0, 2, 2.8, 0.2, -0.1, 0.5);
-	TrapPrism *Mid = new TrapPrism(-0.1, 0.4, 0, 2.4, 1.2, 0.3, 0.6, 0.4);
-	TrapPrism *Top = new TrapPrism(-0.1, 0.7, 0, 1, 0.45, 0.1, 0.05, 0.2);
-	TrapPrism *Tail = new TrapPrism(-1.5, 0.4, 0, 0.4, 1.3, 0.1, -0.3, 0.15);
-	TrapPrism *Fin = new TrapPrism(-2.05, 0.5, 0, 0.3, 0.25, 0.55, 0.45, 0.1);
-	//RectPrism *BBlade1 = new RectPrism(-2.3, 0.55, -0.075, 0.07, 0.7, 0.02);
-		//BBlade1->setSpin(TRUE);
-	Cylinder *BBlade2 = new Cylinder(-2.3, 0.6, -0.075, 0.3, 0.02);
+	
+	TrapPrism *Bottom = new TrapPrism(0.2*10, 0.2*10, 0*10, 2*10, 2.8*10, 0.20*10, -0.7*10, 0.5*10);
+	TrapPrism *Mid = new TrapPrism(-0.1*10, 0.4*10, 0*10, 2.4*10, 1.2*10, 0.3*10, 0.6*10, 0.4*10);
+	TrapPrism *Top = new TrapPrism(-0.1*10, 0.7*10, 0*10, 1*10, 0.45*10, 0.1*10, 0.5*10, 0.2*10);
+	TrapPrism *Tail = new TrapPrism(-1.5*10, 0.4*10, 0*10, 0.4*10, 1.3*10, 0.1*10, -0.6*10, 0.15*10);
+	TrapPrism *Fin = new TrapPrism(-2.05*10, 0.5*10, 0*10, 0.3*10, 0.25*10, 0.55*10, -0.4*10, 0.1*10);
+	//RectPrism *BBlade1 = new RectPrism(-2.3*10, 0.55*10, -0.075*10, 0.07*10, 0.7*10, 0.02*10);
+		//BBlade1->setSpin(TRUE*10);
+	Cylinder *BBlade2 = new Cylinder(-2.3*10, 0.6*10, -0.075*10, 0.3*10, 0.02*10);
 		BBlade2->setSpin(TRUE);
-	RectPrism *Shaft = new RectPrism(0, 0.8, 0, 0.1, 0.1, 0.1);
-	RectPrism *TBlade1 = new RectPrism(0, 0.9, 0, 3.6, 0.03, 0.2);
+	RectPrism *Shaft = new RectPrism(0*10, 0.8*10, 0*10, 0.1*10, 0.1*10, 0.1*10);
+	RectPrism *TBlade1 = new RectPrism(0*10, 0.9*10, 0*10, 3.6*10, 0.03*10, 0.2*10, 45*10);
 		TBlade1->setSteer(TRUE);
-	RectPrism *TBlade2 = new RectPrism(0, 0.9, 0, 0.2, 0.03, 3.6);
+	RectPrism *TBlade2 = new RectPrism(0*10, 0.9*10, 0*10, 0.2*10, 0.03*10, 3.6*10, 45*10);
 		TBlade2->setSteer(TRUE);
-	RectPrism *Topper = new RectPrism(0, 0.93, 0, 0.05, 0.05, 0.05);
-	Cylinder *LFWheel = new Cylinder(0.3, 0, -0.2, 0.08, 0.1);
-	Cylinder *RFWheel = new Cylinder(0.3, 0, 0.2, 0.08, 0.1);
-	TrapPrism *LStrut = new TrapPrism(0.3, 0.05, -0.13, 0.04, 0.3, 0.15, -0.25, 0.04);
-	TrapPrism *RStrut = new TrapPrism(0.3, 0.05, 0.13, 0.04, 0.3, 0.15, -0.25, 0.04);
-	Cylinder *BackWheel1 = new Cylinder(-1.1, 0, -0.04, 0.06, 0.05);
-	Cylinder *BackWheel2 = new Cylinder(-1.1, 0, 0.04, 0.06, 0.05);
-	TrapPrism *BackStrut = new TrapPrism(-1.1, 0.08, 0, 0.1, 0.15, 0.2, -0.14, 0.03);
-	TriPrism *BackWing = new TriPrism(-2, 0.42, 0, 0.2, 0.1, 160, 0.6);
-	TrapPrism *Wings = new TrapPrism(0, 0.35, 0, 0.65, 0.2, 0.11, 0.1, 2);
-	RectPrism *hangL1 = new RectPrism(0, 0.3, -0.45, 0.3, 0.05, 0.05);
-	RectPrism *hangL2 = new RectPrism(0, 0.3, -0.7, 0.3, 0.05, 0.05);
-	TrapPrism *hangL3 = new TrapPrism(0.1, 0.2, -0.45, 0.5, 0.8, 0.1, 0, 0.12);
-	TrapPrism *hangL4 = new TrapPrism(0.1, 0.2, -0.7, 0.5, 0.8, 0.1, 0, 0.12);
-	RectPrism *hangR1 = new RectPrism(0, 0.3, 0.45, 0.3, 0.05, 0.05);
-	RectPrism *hangR2 = new RectPrism(0, 0.3, 0.7, 0.3, 0.05, 0.05);
-	TrapPrism *hangR3 = new TrapPrism(0.1, 0.2, 0.45, 0.5, 0.8, 0.1, 0, 0.12);
-	TrapPrism *hangR4 = new TrapPrism(0.1, 0.2, 0.7, 0.5, 0.8, 0.1, 0, 0.12);
+	RectPrism *Topper = new RectPrism(0*10, 0.93*10, 0*10, 0.05*10, 0.05*10, 0.05*10);
+	Cylinder *LFWheel = new Cylinder(0.3*10, 0*10, -0.2*10, 0.08*10, 0.1*10);
+	Cylinder *RFWheel = new Cylinder(0.3*10, 0*10, 0.2*10, 0.08*10, 0.1*10);
+	TrapPrism *LStrut = new TrapPrism(0.3*10, 0.05*10, -0.13*10, 0.04*10, 0.3*10, 0.15*10, 0.0*10, 0.04*10);
+	TrapPrism *RStrut = new TrapPrism(0.3*10, 0.05*10, 0.13*10, 0.04*10, 0.3*10, 0.15*10, 0.0*10, 0.04*10);
+	Cylinder *BackWheel1 = new Cylinder(-1.1*10, 0*10, -0.04*10, 0.06*10, 0.05*10);
+	Cylinder *BackWheel2 = new Cylinder(-1.1*10, 0*10, 0.04*10, 0.06*10, 0.05*10);
+	TrapPrism *BackStrut = new TrapPrism(-1.1*10, 0.08*10, 0*10, 0.1*10, 0.15*10, 0.2*10, 0.14*10, 0.03*10);
+	TriPrism *BackWing = new TriPrism(-2*10, 0.42*10, 0*10, 0.2*10, 0.3*10, 10, 0.6*10);
+	TrapPrism *Wings = new TrapPrism(0*10, 0.35*10, 0*10, 0.65*10, 0.2*10, 0.11*10, 0.4*10, 2*10);
+	RectPrism *hangL1 = new RectPrism(0*10, 0.3*10, -0.45*10, 0.3*10, 0.05*10, 0.05*10);
+	RectPrism *hangL2 = new RectPrism(0*10, 0.3*10, -0.7*10, 0.3*10, 0.05*10, 0.05*10);
+	TrapPrism *hangL3 = new TrapPrism(0.1*10, 0.2*10, -0.45*10, 0.5*10, 0.8*10, 0.1*10, -0.3*10, 0.12*10);
+	TrapPrism *hangL4 = new TrapPrism(0.1*10, 0.2*10, -0.7*10, 0.5*10, 0.8*10, 0.1*10, -0.3*10, 0.12*10);
+	RectPrism *hangR1 = new RectPrism(0*10, 0.3*10, 0.45*10, 0.3*10, 0.05*10, 0.05*10);
+	RectPrism *hangR2 = new RectPrism(0*10, 0.3*10, 0.7*10, 0.3*10, 0.05*10, 0.05*10);
+	TrapPrism *hangR3 = new TrapPrism(0.1*10, 0.2*10, 0.45*10, 0.5*10, 0.8*10, 0.1*10, -0.3*10, 0.12*10);
+	TrapPrism *hangR4 = new TrapPrism(0.1*10, 0.2*10, 0.7*10, 0.5*10, 0.8*10, 0.1*10, -0.3*10, 0.12*10);
 
 	addShape(Bottom);	//0
 	addShape(Mid);		//1
@@ -331,6 +381,43 @@ void Gender::draw() {
 		shapes[i]->draw();
 
 		
+	}
+
+	glPopMatrix();
+}
+
+Imported::Imported(): Vehicle() {
+}
+
+Imported::~Imported() {
+}
+
+void Imported::draw() {
+
+	glPushMatrix();
+
+	positionInGL();
+
+	//draw each shape and iterate through list
+	for (int i = 0; i < shapes.size(); i++) {
+		Cylinder *check = dynamic_cast <Cylinder*> (shapes[i]);
+
+		if (check != nullptr && check->getSpin() == TRUE) {
+			if (check->getSpinRotation() > 360) {
+				check->setSpinRotation(check->getSpinRotation() - 360);
+			}
+			if (check->getSpinRotation() < -360) {
+				check->setSpinRotation(check->getSpinRotation() + 360);
+			}
+
+			check->setSpinRotation(check->getSpinRotation() + 2 * speed); //changes spin orientation
+		}
+
+		if (check != nullptr && check->getSteer() == TRUE) {
+			check->setRotation(check->originalRotation + getSteering()); //changes rotation of the cylinder
+		}
+
+		shapes[i]->draw();
 	}
 
 	glPopMatrix();

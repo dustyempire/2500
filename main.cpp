@@ -39,6 +39,12 @@
 #include "HUD.hpp"
 #include "ObstacleManager.hpp"
 
+#include "RectPrism.h"
+#include "TriPrism.h"
+#include "TrapPrism.h"
+#include "Cylinder.h"
+#include "MyVehicle.h"
+
 void display();
 void reshape(int width, int height);
 void idle();
@@ -75,8 +81,9 @@ int frameCounter = 0;
 //int _tmain(int argc, _TCHAR* argv[]) {
 int main(int argc, char ** argv) {
 
-	const int WINDOW_WIDTH = 1280;
-	const int WINDOW_HEIGHT = 720;
+	const int WINDOW_WIDTH = 800;
+	const int WINDOW_HEIGHT = 600;
+
 	glutInit(&argc, (char**)(argv));
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowPosition(0, 0);
@@ -106,8 +113,8 @@ int main(int argc, char ** argv) {
 	//   custom vehicle.
 	// -------------------------------------------------------------------------
 
-	//vehicle = new TestVehicle(1.5);
-	vehicle = new Gender(1, 5);
+	vehicle = new TestVehicle();
+
 
 	// add test obstacles
 	ObstacleManager::get()->addObstacle(Obstacle(10,10, 1));
@@ -152,90 +159,8 @@ void drawGoals()
 	}
 }
 
-void TestDraw() {
-
-	//glTranslated(0, 2, 0); moves below
-	//glRotated(12, 0, 1, 0); //rotates below
-
-	//glPushMatrix();
-		//puts previous coordinate system onto stack
-		//do any coordinate changes here, 
-	//glPopMatrix();
-		//resets to the pushed coordinat system
-	//glLoadIdentity();
-
-
-	//RectPrism A(0.0, 0.0, 0.0, 2.0, 3.0, 4.0);
-	//A.setColor(0, 1, 0);
-	//A.draw();
-	//RectPrism B(2, 4, 5, 2, 4, 7, 45);
-	//B.setColor(0, 0, 1);
-	//B.draw();
-
-	//TriPrism C(0, 0, 0, 4, 7, 20, 6);
-	//C.setColor(1, 0, 0);
-	//C.draw();
-
-	//TriPrism D(2, 6, 1, 6, 9, 20, 2, 45);
-	//D.setColor(0.7, 0.2, 0.0);
-	//D.draw();
-
-	//TrapPrism E(4, 0, 4, 3, 1, 2, 1, 4);
-	//E.setColor(0.2, 0.8, 0.1);
-	//E.draw();
-
-	//GLUquadric* disk;
-	//disk = gluNewQuadric();
-	//aagluDisk(disk, 0, 10, 15, 1);
-
-
-
-	//Cylinder F(0, 0, 0, 2, 12, 45);
-	//F.setColor(0.1, 0.1, 0.6);
-	//F.draw();
-
-	/*
-	TestVehicle vroom;
-	vroom.draw();
-	*/
-	//TestVehicle vroom1(2);
-	//vroom1.setPosition(6, 0, 3);
-	//vroom1.setRotation(60);
-	//vroom1.draw();
-	/*
-	RectPrism one(20, 0, 20, 1, 1, 1);
-	one.setColor(1, 0, 0);
-	one.draw();
-
-	TriPrism two(-20, 0, 20, 1, 1, 60, 1, 45);
-	two.setColor(0, 1, 0);
-	two.draw();
-
-	TrapPrism three(-20, 0, -20, 4, 2, 1, 1, 4);
-	three.setColor(0, 0, 1);
-	three.draw();
-
-	Cylinder four(20, 0, -20, 1, 3, 90);
-	four.setColor(1, 1, 1);
-	four.draw();
-	*/
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	//Gender AttackHelicopter(20, 10);
-	//AttackHelicopter.draw();
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	/*
-	RectPrism scale1(-10, 0, 20, 20, 20, 20);
-	scale1.setColor(0.2, 0, 0);
-	scale1.draw();
-	RectPrism scale2(10, 0, 20, 20, 20, 20);
-	scale2.setColor(0, 0.2, 0);
-	scale2.draw();
-	RectPrism scale3(30, 0, 20, 20, 20, 20);
-	scale3.setColor(0, 0, 0.2);
-	scale3.draw();
-	*/
+void testDraw() {
+	
 }
 
 void display() {
@@ -280,7 +205,8 @@ void display() {
 	// draw HUD
 	HUD::Draw();
 
-	TestDraw();
+	testDraw();
+
 	glutSwapBuffers();
 };
 
@@ -391,13 +317,10 @@ void idle() {
 					VehicleModel vm;
 					vm.remoteID = 0;
 
-					TestVehicle *cast = dynamic_cast<TestVehicle *> (vehicle);
-					if (cast != nullptr) {
-						//cast->fillProperties(vm);
-					}
 					//
 					// student code goes here
 					//
+					TestVehicle *cast = dynamic_cast<TestVehicle *> (vehicle);
 
 					RemoteDataManager::Write(GetVehicleModelStr(vm));
 				}
@@ -433,65 +356,11 @@ void idle() {
 								VehicleModel vm = models[i];
 								
 								// uncomment the line below to create remote vehicles
-								//otherVehicles[vm.remoteID] = new MyVehicle();
+								otherVehicles[vm.remoteID] = new TestVehicle();
 
 								//
 								// more student code goes here
 								//
-								otherVehicles[vm.remoteID] = new Imported();
-								Vehicle *other = otherVehicles[vm.remoteID]; //pointer at our end
-
-								//cycling through all created 'import' calss vehicles
-								for (int k = 0; k < vm.shapes.size(); k++) {
-
-									//for each vm, we check the shape list inside
-									//based on the type, we make new shapes andd add those shapes to the 
-									//list in *other 
-
-									if ((vm.shapes[k]).type == RECTANGULAR_PRISM) { //if rect
-										ShapeParameter *params = &vm.shapes[k].params; //pointer for neatness and readability
-										//copy properties over by constructing (position is 0, 0, 0, for now)
-										Shape *copy = new RectPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->rect.xlen, params->rect.ylen, params->rect.zlen, vm.shapes[k].rotation);
-										//add the newly created shape to the shape list of the vehicle 'other' is pointing to
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										other->addShape(copy);
-									}
-
-									if ((vm.shapes[k]).type == TRIANGULAR_PRISM) {
-										ShapeParameter *params = &vm.shapes[k].params;
-										Shape *copy = new TriPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->tri.alen, params->tri.blen, params->tri.angle, params->tri.depth, vm.shapes[k].rotation);
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										other->addShape(copy);
-									}
-
-									if ((vm.shapes[k]).type == TRAPEZOIDAL_PRISM) {
-										ShapeParameter *params = &vm.shapes[k].params;
-										Shape *copy = new TrapPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->trap.alen, params->trap.blen, params->trap.height, params->trap.aoff, params->trap.depth, vm.shapes[k].rotation);
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										other->addShape(copy);
-									}
-
-									if ((vm.shapes[k]).type == CYLINDER) {
-										ShapeParameter *params = &vm.shapes[k].params;
-										Shape *copy = new Cylinder(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->cyl.radius, params->cyl.depth, vm.shapes[k].rotation);
-										//set up a dynamic cast which should succeed.
-										Cylinder *dynamic = dynamic_cast<Cylinder *> (copy); 
-										//set steering and rolling properties
-										dynamic->setSpin(params->cyl.isRolling);
-										dynamic->setSteer(params->cyl.isSteering);
-										dynamic->originalRotation = vm.shapes[k].rotation; 
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										//copy over
-										other->addShape(copy);
-									}
-									
-									//setting the position, colour and rotation of each shape
-									//other->setPosition(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2]);
-									//other->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-									//other->setRotation(vm.shapes[k].rotation);
-
-								}
-								
 							}
 							break;
 						}

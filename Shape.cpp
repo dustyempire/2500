@@ -111,3 +111,6 @@ void Shape::setColor(float red_, float green_, float blue_) {
 	blue = blue_;
 };
 
+int Shape::getShapeType() {
+	return shapeType;
+}

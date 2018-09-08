@@ -61,6 +61,7 @@ void TriPrism::setTheta(double theta_)
 }
 
 TriPrism::TriPrism() : Shape() {
+	Shape::shapeType = 1;
 	a = 0;
 	b = 0;
 	depth = 0;
@@ -68,6 +69,7 @@ TriPrism::TriPrism() : Shape() {
 }
 
 TriPrism::TriPrism(double x_, double y_, double z_, double a_, double b_, double theta_, double depth_) : Shape(x_, y_, z_) {
+	Shape::shapeType = 1;
 	a = a_;
 	b = b_;
 	depth = depth_;
@@ -75,6 +77,7 @@ TriPrism::TriPrism(double x_, double y_, double z_, double a_, double b_, double
 }
 
 TriPrism::TriPrism(double x_, double y_, double z_, double a_, double b_, double theta_, double depth_, double rotation_) : Shape(x_, y_, z_, rotation_) {
+	Shape::shapeType = 1;
 	a = a_;
 	b = b_;
 	depth = depth_;

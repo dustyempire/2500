@@ -70,6 +70,7 @@ void TrapPrism::setDepth(double depth_)
 }
 
 TrapPrism::TrapPrism() : Shape() {
+	Shape::shapeType = 2;
 	a = 0;
 	b = 0;
 	h = 0;
@@ -77,6 +78,7 @@ TrapPrism::TrapPrism() : Shape() {
 }
 
 TrapPrism::TrapPrism(double x_, double y_, double z_, double a_, double b_, double h_, double off_, double depth_) : Shape(x_, y_, z_) {
+	Shape::shapeType = 2;
 	a = a_;
 	b = b_;
 	h = h_;
@@ -85,6 +87,7 @@ TrapPrism::TrapPrism(double x_, double y_, double z_, double a_, double b_, doub
 }
 
 TrapPrism::TrapPrism(double x_, double y_, double z_, double a_, double b_, double h_, double off_, double depth_, double rotation_) : Shape(x_, y_, z_, rotation_) {
+	Shape::shapeType = 2;
 	a = a_;
 	b = b_;
 	h = h_;

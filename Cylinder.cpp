@@ -17,6 +17,7 @@
 
 //cylinder
 Cylinder::Cylinder() : Shape() {
+	Shape::shapeType = 3;
 	r = 0;
 	depth = 0;
 	isSteer = FALSE;
@@ -30,6 +31,7 @@ Cylinder::~Cylinder() {
 }
 
 Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_) : Shape(x_, y_, z_) {
+	Shape::shapeType = 3;
 	r = r_;
 	depth = depth_;
 	isSteer = FALSE;
@@ -40,6 +42,7 @@ Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_) : 
 }
 
 Cylinder::Cylinder(double x_, double y_, double z_, double r_, double depth_, double rotation_) : Shape(x_, y_, z_, rotation_) {
+	Shape::shapeType = 3;
 	r = r_;
 	depth = depth_;
 	isSteer = FALSE;
@@ -176,9 +179,6 @@ void Cylinder::setRims(bool state) {
 	rims = state;
 }
 
-bool Cylinder::getRims()
-{
+bool Cylinder::getRims() {
 	return rims;
 }
-
-

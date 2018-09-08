@@ -44,18 +44,21 @@ void RectPrism::setZLength(double z_) {
 }
 
 RectPrism::RectPrism() : Shape() {
+	Shape::shapeType = 0;
 	xLength = 0.0;
 	yLength = 0.0;
 	zLength = 0.0;
 }
 
 RectPrism::RectPrism(double x_, double y_, double z_, double x_length, double y_length, double z_length) : Shape(x_, y_, z_) {
+	Shape::shapeType = 0;
 	xLength = x_length;
 	yLength = y_length;
 	zLength = z_length;
 }
 
 RectPrism::RectPrism(double x_, double y_, double z_, double x_length, double y_length, double z_length, double rotation_) : Shape(x_, y_, z_, rotation_) {
+	Shape::shapeType = 0;
 	xLength = x_length;
 	yLength = y_length;
 	zLength = z_length;

@@ -2,6 +2,12 @@
 #ifndef MTRN3500_SHAPE_H
 #define MTRN3500_SHAPE_H
 
+#define RECT_PRISM 0
+#define TRI_PRISM 1
+#define TRAP_PRISM 2
+#define CYL 3 
+
+
 // Abstract class
 class Shape {
 
@@ -32,12 +38,13 @@ public:
 	double getGreen();
 	double getBlue();
 	void setColor(float red_, float green_, float blue_);
+	int getShapeType();
 
 protected:
 	double x, y, z;               // position
 	double rotation;              // heading of the object in the horizontal plane (degrees)
 	float red, green, blue;       // colour of object
-
+	int shapeType;
 };
 
 #endif // for MTRN3500_SHAPE_H

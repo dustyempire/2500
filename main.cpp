@@ -43,8 +43,17 @@
 #include "TriPrism.h"
 #include "TrapPrism.h"
 #include "Cylinder.h"
+
 #include "MyVehicle.h"
 #include "ImportedVehicle.h"
+#include "Gender.h"
+#include "LilPump.h"
+#include "Kanye.h"
+
+#include "XBoxController.h"
+#include "XinputWrapper.h"
+
+
 
 void display();
 void reshape(int width, int height);
@@ -78,6 +87,9 @@ std::deque<GoalState> goals;
 std::map<int, Vehicle *> otherVehicles;
 
 int frameCounter = 0;
+
+XInputWrapper xinput;
+GamePad::XBoxController controller(&xinput, 0);
 
 //int _tmain(int argc, _TCHAR* argv[]) {
 int main(int argc, char ** argv) {
@@ -114,8 +126,17 @@ int main(int argc, char ** argv) {
 	//   custom vehicle.
 	// -------------------------------------------------------------------------
 
-	vehicle = new TestVehicle();
+	//vehicle = new TestVehicle();
+	//vehicle = new Gender();
+	//vehicle = new LilPump();
+	vehicle = new Kanye();
 
+		/* xbox controller connection*/
+
+	if (controller.IsConnected() == true)
+	{
+		std::cout << "plugged in " << std::endl;
+	}
 
 	// add test obstacles
 	ObstacleManager::get()->addObstacle(Obstacle(10,10, 1));
@@ -279,21 +300,39 @@ void idle() {
 	speed = 0;
 	steering = 0;
 
-	if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_LEFT)) {
-		steering = Vehicle::MAX_LEFT_STEERING_DEGS * -1;   
+	if (controller.IsConnected() == TRUE) {
+		if (controller.PressedUpDpad())
+		{
+			std::cout << "^ ";
+			speed = Vehicle::MAX_FORWARD_SPEED_MPS;
+		}
+		double percent = double(double(controller.LeftThumbLocation().GetY()) / 32768);
+		speed = Vehicle::MAX_FORWARD_SPEED_MPS * percent;
+		double steerpercent = double(double(controller.LeftThumbLocation().GetX()) / 32768);
+		steering = Vehicle::MAX_LEFT_STEERING_DEGS * steerpercent;
 	}
+	else {
+		if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_LEFT)) {
+			steering = Vehicle::MAX_LEFT_STEERING_DEGS * -1;
+		}
 
-	if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_RIGHT)) {
-		steering = Vehicle::MAX_RIGHT_STEERING_DEGS * -1;
-	}
+		if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_RIGHT)) {
+			steering = Vehicle::MAX_RIGHT_STEERING_DEGS * -1;
+		}
 
-	if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_UP)) {
-		speed = Vehicle::MAX_FORWARD_SPEED_MPS;
-	}
+		if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_UP)) {
+			speed = Vehicle::MAX_FORWARD_SPEED_MPS;
+		}
 
-	if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_DOWN)) {
-		speed = Vehicle::MAX_BACKWARD_SPEED_MPS;
+		if (KeyManager::get()->isSpecialKeyPressed(GLUT_KEY_DOWN)) {
+			speed = Vehicle::MAX_BACKWARD_SPEED_MPS;
+		}
+
 	}
+	
+	
+		// Xbox inputs
+	
 
 	// attempt to do data communications every 4 frames if we've created a local vehicle
 	if(frameCounter % 4 == 0 && vehicle != NULL) {
@@ -310,19 +349,24 @@ void idle() {
 
 				// uncomment this line to connect to the robotics server.
 				RemoteDataManager::Connect("www.robotics.unsw.edu.au","18081");
+				//RemoteDataManager::Connect("192.168.1.1", "18081");
 
 				// on connect, let's tell the server what we look like
 				if (RemoteDataManager::IsConnected()) {
 					ObstacleManager::get()->removeAll();
 
 					VehicleModel vm;
-					vm.remoteID = 0;
+					
 
 					//
 					// student code goes here
 					//
 					//TestVehicle *cast = dynamic_cast<TestVehicle *> (vehicle);
-					vm = dynamic_cast<TestVehicle*>(vehicle)->getVM();
+					//vm = dynamic_cast<TestVehicle*>(vehicle)->getVM();
+					//vm = dynamic_cast<Gender*>(vehicle)->getVM();
+					//vm = dynamic_cast<LilPump*>(vehicle)->getVM();
+					vm = dynamic_cast<Kanye*>(vehicle)->getVM();
+					vm.remoteID = 0;
 					RemoteDataManager::Write(GetVehicleModelStr(vm));
 				}
 			}
@@ -360,7 +404,7 @@ void idle() {
 								otherVehicles[vm.remoteID] = new ImportedVehicle();
 								Vehicle *other = otherVehicles[vm.remoteID]; //pointer at our end
 
-								//cycling through all created 'import' calss vehicles
+								//cycling through all created 'import' class vehicles
 								for (int k = 0; k < vm.shapes.size(); k++) {
 
 									//for each vm, we check the shape list inside

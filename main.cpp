@@ -80,6 +80,7 @@ int prev_mouse_y = -1;
 Vehicle * vehicle = NULL;
 double speed = 0;
 double steering = 0;
+bool chaseMode = FALSE;
 
 // default goal location
 std::deque<GoalState> goals;
@@ -127,9 +128,9 @@ int main(int argc, char ** argv) {
 	// -------------------------------------------------------------------------
 
 	//vehicle = new TestVehicle();
-	//vehicle = new Gender();
+	vehicle = new Gender();
 	//vehicle = new LilPump();
-	vehicle = new Kanye();
+	//vehicle = new Kanye();
 
 		/* xbox controller connection*/
 
@@ -299,8 +300,49 @@ void idle() {
 
 	speed = 0;
 	steering = 0;
+	if (chaseMode) {
+		//finds the pointer to the vehicle with remote id 1
+		Vehicle * chasing = otherVehicles.find(1)->second;
 
-	if (controller.IsConnected() == TRUE) {
+		//ez teleportation method 
+		//remoteDriver(vehicle, chasing->getX(), chasing->getZ(), chasing->getRotation(), chasing->getSpeed(), chasing->getSteering() );
+
+
+		double chaseX = chasing->getX() - vehicle->getX();
+		double chaseZ = chasing->getZ() - vehicle->getZ();
+
+		double chaseAngle = (atan2(chaseZ, chaseX)) * 180 / (3.1415926);
+		//chase angle ranges from -180 to +180
+		//while vehicle rotation goes from 0 to 360
+		double offsetRotation = vehicle->getRotation();
+		if (offsetRotation > 180) {
+			offsetRotation = offsetRotation - 360;
+		} //offset rotation ranges from -180 to 180 and is only for comparison
+
+		double sqdistance = (chaseX * chaseX) + (chaseZ * chaseZ);
+		//std::cout << sqdistance << std::endl;
+
+		//maintains a minimum separation distance
+		if (sqdistance > 1200) {
+			speed = Vehicle::MAX_FORWARD_SPEED_MPS/1.5;
+		}
+
+		//decides whether to steer left or right based on the chased car's position relative
+		//to orientation of the vehicle
+		if (offsetRotation > chaseAngle + 5) {
+			steering = -Vehicle::MAX_LEFT_STEERING_DEGS/2;
+		}
+		else if (offsetRotation < chaseAngle - 5) {
+			steering = -Vehicle::MAX_RIGHT_STEERING_DEGS/2;
+		}
+		else {
+			steering = 0;
+		}
+
+	}
+
+	// Xbox inputs
+	else if (controller.IsConnected() == TRUE) {
 		if (controller.PressedUpDpad())
 		{
 			std::cout << "^ ";
@@ -329,26 +371,23 @@ void idle() {
 		}
 
 	}
-	
-	
-		// Xbox inputs
-	
+
 
 	// attempt to do data communications every 4 frames if we've created a local vehicle
-	if(frameCounter % 4 == 0 && vehicle != NULL) {
+	if (frameCounter % 4 == 0 && vehicle != NULL) {
 
 		// if not connected, attempt to connect every 2 seconds
-		if(!RemoteDataManager::IsConnected()) {
-			if(frameCounter % 120 == 0) {
-		
+		if (!RemoteDataManager::IsConnected()) {
+			if (frameCounter % 120 == 0) {
+
 				// erase other vehicles
-				for(std::map<int, Vehicle*>::iterator iter = otherVehicles.begin(); iter  != otherVehicles.end(); ++iter) {
+				for (std::map<int, Vehicle*>::iterator iter = otherVehicles.begin(); iter != otherVehicles.end(); ++iter) {
 					delete iter->second;
 				}
 				otherVehicles.clear();
 
 				// uncomment this line to connect to the robotics server.
-				RemoteDataManager::Connect("www.robotics.unsw.edu.au","18081");
+				RemoteDataManager::Connect("www.robotics.unsw.edu.au", "18081");
 				//RemoteDataManager::Connect("192.168.1.1", "18081");
 
 				// on connect, let's tell the server what we look like
@@ -356,16 +395,16 @@ void idle() {
 					ObstacleManager::get()->removeAll();
 
 					VehicleModel vm;
-					
+
 
 					//
 					// student code goes here
 					//
 					//TestVehicle *cast = dynamic_cast<TestVehicle *> (vehicle);
 					//vm = dynamic_cast<TestVehicle*>(vehicle)->getVM();
-					//vm = dynamic_cast<Gender*>(vehicle)->getVM();
+					vm = dynamic_cast<Gender*>(vehicle)->getVM();
 					//vm = dynamic_cast<LilPump*>(vehicle)->getVM();
-					vm = dynamic_cast<Kanye*>(vehicle)->getVM();
+					//vm = dynamic_cast<Kanye*>(vehicle)->getVM();
 					vm.remoteID = 0;
 					RemoteDataManager::Write(GetVehicleModelStr(vm));
 				}
@@ -387,134 +426,130 @@ void idle() {
 		// if we're still connected, receive and handle response messages from the server
 		if (RemoteDataManager::IsConnected()) {
 			std::vector<RemoteMessage> msgs = RemoteDataManager::Read();
-			for(unsigned int i = 0; i < msgs.size(); i++ ) {
+			for (unsigned int i = 0; i < msgs.size(); i++) {
 
 				RemoteMessage msg = msgs[i];
 				//cout << msg.payload << endl;
 
-				switch(msg.type) {
+				switch (msg.type) {
 					// new models
-					case 'M':
-						{
-							std::vector<VehicleModel> models = GetVehicleModels(msg.payload);
-							for(unsigned int i = 0; i < models.size(); i++) {
-								VehicleModel vm = models[i];
-								
-								// uncomment the line below to create remote vehicles
-								otherVehicles[vm.remoteID] = new ImportedVehicle();
-								Vehicle *other = otherVehicles[vm.remoteID]; //pointer at our end
+				case 'M':
+				{
+					std::vector<VehicleModel> models = GetVehicleModels(msg.payload);
+					for (unsigned int i = 0; i < models.size(); i++) {
+						VehicleModel vm = models[i];
 
-								//cycling through all created 'import' class vehicles
-								for (int k = 0; k < vm.shapes.size(); k++) {
+						// uncomment the line below to create remote vehicles
+						otherVehicles[vm.remoteID] = new ImportedVehicle();
+						Vehicle *other = otherVehicles[vm.remoteID]; //pointer at our end
 
-									//for each vm, we check the shape list inside
-									//based on the type, we make new shapes andd add those shapes to the 
-									//list in *other 
+						//cycling through all created 'import' class vehicles
+						for (int k = 0; k < vm.shapes.size(); k++) {
 
-									if ((vm.shapes[k]).type == RECTANGULAR_PRISM) { //if rect
-										ShapeParameter *params = &vm.shapes[k].params; //pointer for neatness and readability
-										//copy properties over by constructing (position is 0, 0, 0, for now)
-										Shape *copy = new RectPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->rect.xlen, params->rect.ylen, params->rect.zlen, vm.shapes[k].rotation);
-										//add the newly created shape to the shape list of the vehicle 'other' is pointing to
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										other->addShape(copy);
-									}
+							//for each vm, we check the shape list inside
+							//based on the type, we make new shapes andd add those shapes to the 
+							//list in *other 
 
-									if ((vm.shapes[k]).type == TRIANGULAR_PRISM) {
-										ShapeParameter *params = &vm.shapes[k].params;
-										Shape *copy = new TriPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->tri.alen, params->tri.blen, params->tri.angle, params->tri.depth, vm.shapes[k].rotation);
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										other->addShape(copy);
-									}
-
-									if ((vm.shapes[k]).type == TRAPEZOIDAL_PRISM) {
-										ShapeParameter *params = &vm.shapes[k].params;
-										Shape *copy = new TrapPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->trap.alen, params->trap.blen, params->trap.height, params->trap.aoff, params->trap.depth, vm.shapes[k].rotation);
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										other->addShape(copy);
-									}
-
-									if ((vm.shapes[k]).type == CYLINDER) {
-										ShapeParameter *params = &vm.shapes[k].params;
-										Shape *copy = new Cylinder(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->cyl.radius, params->cyl.depth, vm.shapes[k].rotation);
-										//set up a dynamic cast which should succeed.
-										Cylinder *dynamic = dynamic_cast<Cylinder *> (copy);
-										//set steering and rolling properties
-										dynamic->setSpin(params->cyl.isRolling);
-										dynamic->setSteer(params->cyl.isSteering);
-										dynamic->originalRotation = vm.shapes[k].rotation;
-										copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-										//copy over
-										other->addShape(copy);
-									}
-
-									//setting the position, colour and rotation of each shape
-									//other->setPosition(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2]);
-									//other->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
-									//other->setRotation(vm.shapes[k].rotation);
-								}
+							if ((vm.shapes[k]).type == RECTANGULAR_PRISM) { //if rect
+								ShapeParameter *params = &vm.shapes[k].params; //pointer for neatness and readability
+								//copy properties over by constructing (position is 0, 0, 0, for now)
+								Shape *copy = new RectPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->rect.xlen, params->rect.ylen, params->rect.zlen, vm.shapes[k].rotation);
+								//add the newly created shape to the shape list of the vehicle 'other' is pointing to
+								copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+								other->addShape(copy);
 							}
-							break;
-						}
 
-					// vehicle states
-					case 'S': 
-						{
-							std::vector<VehicleState> states = GetVehicleStates(msg.payload);
-							for(unsigned int i = 0; i < states.size(); i++) {
-								VehicleState vs = states[i];
-
-								std::map<int, Vehicle*>::iterator iter = otherVehicles.find(vs.remoteID);
-								if(iter != otherVehicles.end()) {
-									Vehicle * veh = iter->second;
-									remoteDriver(veh, vs.x, vs.z, vs.rotation, vs.speed, vs.steering);
-								}
+							if ((vm.shapes[k]).type == TRIANGULAR_PRISM) {
+								ShapeParameter *params = &vm.shapes[k].params;
+								Shape *copy = new TriPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->tri.alen, params->tri.blen, params->tri.angle, params->tri.depth, vm.shapes[k].rotation);
+								copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+								other->addShape(copy);
 							}
-							break;
-						}
 
-					// goal state
-					case 'G':
-						{
-							goals = GetGoals(msg.payload);
-							break;
-						}
-
-					// obstacle state
-					case 'O':
-						{
-							std::vector<ObstacleState> obs = GetObstacles(msg.payload);
-							for(unsigned int i = 0; i < obs.size(); i++) {
-								Obstacle o(obs[i].x, obs[i].z, obs[i].radius);
-								ObstacleManager::get()->addObstacle(o);
+							if ((vm.shapes[k]).type == TRAPEZOIDAL_PRISM) {
+								ShapeParameter *params = &vm.shapes[k].params;
+								Shape *copy = new TrapPrism(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->trap.alen, params->trap.blen, params->trap.height, params->trap.aoff, params->trap.depth, vm.shapes[k].rotation);
+								copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+								other->addShape(copy);
 							}
-							break;
-						}
 
-					// disconnect list
-					case 'D':
-						{
-							std::vector<int> disconnectedIDs = GetVehicleDisconnects(msg.payload);
-							for(unsigned int i = 0; i < disconnectedIDs.size(); i++) {
-								int id = disconnectedIDs[i];
-								std::map<int, Vehicle*>::iterator iter = otherVehicles.find(id);
-								if(iter != otherVehicles.end()) {
-									delete iter->second;
-									otherVehicles.erase(iter);
-								}
+							if ((vm.shapes[k]).type == CYLINDER) {
+								ShapeParameter *params = &vm.shapes[k].params;
+								Shape *copy = new Cylinder(vm.shapes[k].xyz[0], vm.shapes[k].xyz[1], vm.shapes[k].xyz[2], params->cyl.radius, params->cyl.depth, vm.shapes[k].rotation);
+								//set up a dynamic cast which should succeed.
+								Cylinder *dynamic = dynamic_cast<Cylinder *> (copy);
+								//set steering and rolling properties
+								dynamic->setSpin(params->cyl.isRolling);
+								dynamic->setSteer(params->cyl.isSteering);
+								dynamic->originalRotation = vm.shapes[k].rotation;
+								copy->setColor(vm.shapes[k].rgb[0], vm.shapes[k].rgb[1], vm.shapes[k].rgb[2]);
+								//copy over
+								other->addShape(copy);
 							}
-							break;
-						}
 
-					// error message
-					case 'E':
-						{
-							cerr << "Server error: " << msg.payload << endl;
-							break;
 						}
+					}
+					break;
+				}
+
+				// vehicle states
+				case 'S':
+				{
+					std::vector<VehicleState> states = GetVehicleStates(msg.payload);
+					for (unsigned int i = 0; i < states.size(); i++) {
+						VehicleState vs = states[i];
+
+						std::map<int, Vehicle*>::iterator iter = otherVehicles.find(vs.remoteID);
+						if (iter != otherVehicles.end()) {
+							Vehicle * veh = iter->second;
+							remoteDriver(veh, vs.x, vs.z, vs.rotation, vs.speed, vs.steering);
+						}
+					}
+					break;
+				}
+
+				// goal state
+				case 'G':
+				{
+					goals = GetGoals(msg.payload);
+					break;
+				}
+
+				// obstacle state
+				case 'O':
+				{
+					std::vector<ObstacleState> obs = GetObstacles(msg.payload);
+					for (unsigned int i = 0; i < obs.size(); i++) {
+						Obstacle o(obs[i].x, obs[i].z, obs[i].radius);
+						ObstacleManager::get()->addObstacle(o);
+					}
+					break;
+				}
+
+				// disconnect list
+				case 'D':
+				{
+					std::vector<int> disconnectedIDs = GetVehicleDisconnects(msg.payload);
+					for (unsigned int i = 0; i < disconnectedIDs.size(); i++) {
+						int id = disconnectedIDs[i];
+						std::map<int, Vehicle*>::iterator iter = otherVehicles.find(id);
+						if (iter != otherVehicles.end()) {
+							delete iter->second;
+							otherVehicles.erase(iter);
+						}
+					}
+					break;
+				}
+
+				// error message
+				case 'E':
+				{
+					cerr << "Server error: " << msg.payload << endl;
+					break;
+				}
 
 				}
-			} 
+			}
 		}
 	}
 
@@ -560,6 +595,10 @@ void keydown(unsigned char key, int x, int y) {
 		break;
 	case 'p':
 		Camera::get()->togglePursuitMode();
+		break;
+	case 'l':
+		chaseMode = !chaseMode;
+		std::cout << "toggled chase mode" << std::endl;
 		break;
 	}
 

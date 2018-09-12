@@ -88,13 +88,13 @@ void Cylinder::draw()
 	//makes alternating colored sections if the cylinders spin with vehicle, 
 	//otherwise just makes disk faces
 	if (rims == TRUE) {
-		int split = 6; //number of different partial disks made
+		int split = 12; //number of different partial disks made
 		double angle = 360 / split;
 		bool bright = TRUE; //alternates colours
 		for (int k = 0; k < split; k++) {
 
 			if (bright == TRUE) {
-				glColor3d(Cylinder::red, Cylinder::green, Cylinder::blue); //color 1
+				glColor3d(0.5, 0.5, 0.5); //color 1
 			}
 			else {
 				glColor3d(0.2, 0.2, 0.2); //color 2
@@ -117,13 +117,13 @@ void Cylinder::draw()
 	glTranslated(0, 0, depth); //moves making point to other side of cylinder
 
 	if (rims == TRUE) {
-		int split = 6;
+		int split = 12;
 		double angle = 360 / split;
 		bool bright = TRUE;
 		for (int k = 0; k < split; k++) {
 
 			if (bright == TRUE) {
-				glColor3d(Cylinder::red, Cylinder::green, Cylinder::blue);
+				glColor3d(0.5, 0.5, 0.5);
 			}
 			else {
 				glColor3d(0.2, 0.2, 0.2);

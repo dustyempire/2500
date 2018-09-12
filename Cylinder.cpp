@@ -94,7 +94,7 @@ void Cylinder::draw()
 		for (int k = 0; k < split; k++) {
 
 			if (bright == TRUE) {
-				glColor3d(1, 0, 1); //color 1
+				glColor3d(Cylinder::red, Cylinder::green, Cylinder::blue); //color 1
 			}
 			else {
 				glColor3d(0.2, 0.2, 0.2); //color 2
@@ -123,7 +123,7 @@ void Cylinder::draw()
 		for (int k = 0; k < split; k++) {
 
 			if (bright == TRUE) {
-				glColor3d(1, 0, 1);
+				glColor3d(Cylinder::red, Cylinder::green, Cylinder::blue);
 			}
 			else {
 				glColor3d(0.2, 0.2, 0.2);
